@@ -8,7 +8,7 @@
       <link href="/2022/01/21/test/"/>
       <url>/2022/01/21/test/</url>
       
-        <content type="html"><![CDATA[<h2 id="This-is-a-test"><a href="#This-is-a-test" class="headerlink" title="This is a test!"></a>This is a test!</h2>]]></content>
+        <content type="html"><![CDATA[<h2 id="This-is-a-test"><a href="#This-is-a-test" class="headerlink" title="This is a test!"></a>This is a test!</h2><div class="note warning modern"><p>test</p></div>]]></content>
       
       
       
