@@ -2,8 +2,32 @@
 <search> 
   
   
+    
+    <entry>
+      <title>Hello</title>
+      <link href="/2022/01/22/Hello/"/>
+      <url>/2022/01/22/Hello/</url>
+      
+        <content type="html"><![CDATA[<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>互联网上的小伙伴们，大家好！<br>这是我的第一个博客，在这里会记录我的学习过程。<br>希望里面的文章会对你有所帮助!</p><div class="note success modern"><p>Keep Learning!</p></div>]]></content>
+      
+      
+      
+    </entry>
+    
+    
   
   
+    
+    
+    <entry>
+      <title>分类</title>
+      <link href="/categories/index.html"/>
+      <url>/categories/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
     
     
     <entry>
@@ -18,9 +42,9 @@
     
     
     <entry>
-      <title>分类</title>
-      <link href="/categories/index.html"/>
-      <url>/categories/index.html</url>
+      <title>movies</title>
+      <link href="/movies/index.html"/>
+      <url>/movies/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
@@ -54,17 +78,6 @@
       <title>标签</title>
       <link href="/tags/index.html"/>
       <url>/tags/index.html</url>
-      
-        <content type="html"><![CDATA[]]></content>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>movies</title>
-      <link href="/movies/index.html"/>
-      <url>/movies/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
