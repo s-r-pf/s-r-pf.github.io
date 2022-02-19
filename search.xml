@@ -4,6 +4,72 @@
   
     
     <entry>
+      <title>VNCTF-ezmath</title>
+      <link href="/2022/02/19/VNCTF-ezmath/"/>
+      <url>/2022/02/19/VNCTF-ezmath/</url>
+      
+        <content type="html"><![CDATA[<h1 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h1><p>题目给出了服务端的python源代码，先分析一下。</p><h2 id="条件一"><a href="#条件一" class="headerlink" title="条件一"></a>条件一</h2><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">proof_of_work</span>(<span class="params">self</span>):</span></span><br><span class="line">    proof = (<span class="string">&#x27;&#x27;</span>.join([random.choice(table)<span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">20</span>)])).encode()</span><br><span class="line">    sha = sha256(proof).hexdigest()encode()</span><br><span class="line">    self.send(<span class="string">b&quot;[+] sha256(XXXX+&quot;</span> + proof[<span class="number">4</span>:] + <span class="string">b&quot;) == &quot;</span> + sha )</span><br><span class="line">    XXXX = self.recv(prompt = <span class="string">b&#x27;[+] Plz Tell Me XXXX :&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(XXXX) != <span class="number">4</span> <span class="keyword">or</span> sha256(XXXX + proof[<span class="number">4</span>:]).hexdigest().encode() != sha:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure><p>首先是在生成的<code>table</code>表中随机选取了20个字符，然后进行了sha256编码。但是它最后的输出并没有给出源字符串的前4个字符，我们的任务是解出这4个字符。<br>sha256对相同的字符串会生成相同的哈希加密字符串，服务器已经发送给我们哈希加密后的字符串，那么就可以针对这4个字符进行暴力破解。</p><h2 id="条件二"><a href="#条件二" class="headerlink" title="条件二"></a>条件二</h2><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">times = getPrime(<span class="number">32</span>)</span><br><span class="line">self.send(<span class="string">b&#x27;plz give me the &#x27;</span> + <span class="built_in">str</span>(times).encode() + <span class="string">b&#x27;th (n) that satisfying (2^n-1) % 15 == 0:&#x27;</span>)</span><br></pre></td></tr></table></figure><p>条件二随机生成一个32位的素数<code>times</code>，然后要求我们找出满足该公式的第<code>times</code>个n的数值。<br>这其实是一个简单的数学问题，有规律可循，可参考这个<a href="https://zhidao.baidu.com/question/1576765037448550700.html">链接</a><br>最后我们需要满足条件二777次。</p><h1 id="payload"><a href="#payload" class="headerlink" title="payload"></a>payload</h1><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> hashlib <span class="keyword">import</span> sha256</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">crack_condition1</span>(<span class="params">source, source_encoded</span>):</span></span><br><span class="line">    brute_str = string.ascii_letters + string.digits</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> brute_str:</span><br><span class="line">     <span class="keyword">for</span> j <span class="keyword">in</span> brute_str:</span><br><span class="line">        <span class="keyword">for</span> i2 <span class="keyword">in</span> brute_str:</span><br><span class="line">            <span class="keyword">for</span> j2 <span class="keyword">in</span> brute_str:</span><br><span class="line">                res = i + j + i2 + j2 + source</span><br><span class="line">                res_encode = sha256(res.encode()).hexdigest()</span><br><span class="line">                <span class="keyword">if</span> res_encode == source_encoded:</span><br><span class="line">                    <span class="keyword">return</span> res[:<span class="number">4</span>]</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">crack_condition2</span>(<span class="params">nth</span>):</span></span><br><span class="line">    n = <span class="number">4</span> * nth</span><br><span class="line">    <span class="keyword">return</span> n</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    i = <span class="number">777</span></span><br><span class="line">    s = remote(<span class="string">&quot;node4.buuoj.cn&quot;</span>, <span class="number">29126</span>)</span><br><span class="line"></span><br><span class="line">    data = s.recvline()</span><br><span class="line">    source_string = re.findall(<span class="string">r&#x27;\(\S+\+(\S+)\)&#x27;</span>, <span class="built_in">str</span>(data))[<span class="number">0</span>]</span><br><span class="line">    encoded_string = re.findall(<span class="string">r&#x27;= ([0-9a-fA-F]*)\\&#x27;</span>, <span class="built_in">str</span>(data))[<span class="number">0</span>]</span><br><span class="line">    phase_1 = crack_condition1(source_string, encoded_string)</span><br><span class="line">    s.sendline(phase_1)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> i:</span><br><span class="line">        data = s.recvline()</span><br><span class="line">        phase2_nth = re.findall(<span class="string">r&#x27;the (\d*)th&#x27;</span>, <span class="built_in">str</span>(data))[<span class="number">0</span>]</span><br><span class="line">        phase_2 = crack_condition2(<span class="built_in">int</span>(phase2_nth))</span><br><span class="line">        s.sendline(<span class="built_in">str</span>(phase_2))</span><br><span class="line">        i -= <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> i == <span class="number">0</span>:</span><br><span class="line">            res = s.recvline()</span><br><span class="line">            res = s.recvline()</span><br><span class="line">            res = s.recvline()</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            res = s.recvline()</span><br><span class="line">    <span class="built_in">print</span>(res)</span><br></pre></td></tr></table></figure><h1 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h1><ol><li>python3中的str类与bytes类已经被区分开了，如果将bytes类强行转换为str类，那么将会多出<code>b&#39;&#39;</code>这三个字符。</li><li>关于python3中的正则表达式可以参考<a href="https://docs.python.org/3/library/re.html#regular-expression-syntax">官方链接</a></li><li>pwntools的使用参考此<a href="https://github.com/Gallopsled/pwntools-tutorial">链接</a></li></ol>]]></content>
+      
+      
+      <categories>
+          
+          <category> CTF </category>
+          
+          <category> web </category>
+          
+          <category> VNCTF </category>
+          
+          <category> 2022 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> python脚本编写 </tag>
+            
+            <tag> 哈希加密 </tag>
+            
+            <tag> 正则匹配 </tag>
+            
+            <tag> pwntools </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>XSS学习</title>
+      <link href="/2022/02/13/xss/"/>
+      <url>/2022/02/13/xss/</url>
+      
+        <content type="html"><![CDATA[<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>此篇文章会介绍有关XSS的知识，但不会讲解基础原理，而是根据例子介绍一些绕过及防御措施。此外，文章结尾会列出一些介绍XSS或者补充本文章内容的链接，方便进行查阅。</p><h1 id="XSS类型"><a href="#XSS类型" class="headerlink" title="XSS类型"></a>XSS类型</h1><h2 id="DOM型"><a href="#DOM型" class="headerlink" title="DOM型"></a>DOM型</h2><h3 id="DOM-XSS-in-jQuery-selector-sink-using-a-hashchange-event"><a href="#DOM-XSS-in-jQuery-selector-sink-using-a-hashchange-event" class="headerlink" title="DOM XSS in jQuery selector sink using a hashchange event"></a>DOM XSS in jQuery selector sink using a hashchange event</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">    $(<span class="built_in">window</span>).on(<span class="string">&#x27;hashchange&#x27;</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">var</span> post = $(<span class="string">&#x27;section.blog-list h2:contains(&#x27;</span> + <span class="built_in">decodeURIComponent</span>(<span class="built_in">window</span>.location.hash.slice(<span class="number">1</span>)) + <span class="string">&#x27;)&#x27;</span>);</span><br><span class="line">        <span class="keyword">if</span> (post) post.get(<span class="number">0</span>).scrollIntoView();</span><br><span class="line">    &#125;);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure><p>该script的作用基本上是自动滑动到指定的文章 ，依据的是页面的标签值<code>/#admin</code>，当<code>window.location.hash</code>值改变时会调用该函数。<br><code>h2:contains</code>代表查找h2标签中具有特定值的元素。<br>payload:<code>https://website.com/#&lt;img src=d onerror=print()&gt;</code>，直接报错执行，直接插入JavaScript语句不会正常执行。</p><h1 id="补充链接"><a href="#补充链接" class="headerlink" title="补充链接"></a>补充链接</h1><p><a href="https://www.fooying.com/the-art-of-xss-1-introduction/#mxss">XSS类型详细介绍</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 基础原理 </category>
+          
+          <category> OWASP </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> XSS </tag>
+            
+            <tag> OWASP </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>HTB-Driver</title>
       <link href="/2022/02/10/HTB-Driver/"/>
       <url>/2022/02/10/HTB-Driver/</url>
@@ -216,9 +282,9 @@
     
     
     <entry>
-      <title>分类</title>
-      <link href="/categories/index.html"/>
-      <url>/categories/index.html</url>
+      <title>books</title>
+      <link href="/books/index.html"/>
+      <url>/books/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
@@ -238,31 +304,31 @@
     
     
     <entry>
-      <title>movies</title>
-      <link href="/movies/index.html"/>
-      <url>/movies/index.html</url>
-      
-        <content type="html"><![CDATA[]]></content>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>books</title>
-      <link href="/books/index.html"/>
-      <url>/books/index.html</url>
-      
-        <content type="html"><![CDATA[]]></content>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>music</title>
       <link href="/music/index.html"/>
       <url>/music/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>分类</title>
+      <link href="/categories/index.html"/>
+      <url>/categories/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>movies</title>
+      <link href="/movies/index.html"/>
+      <url>/movies/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
