@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://sharpa.cn/2022/04/01/CSAPP-bomblab/</loc>
+    <loc>https://sharpa.cn/2022/04/01/SSRF%E6%89%93%E5%86%85%E7%BD%91/</loc>
     
     <lastmod>2022-04-22</lastmod>
     
@@ -11,9 +11,9 @@
   </url>
   
   <url>
-    <loc>https://sharpa.cn/2022/04/01/SSRF%E6%89%93%E5%86%85%E7%BD%91/</loc>
+    <loc>https://sharpa.cn/2022/04/01/CSAPP-bomblab/</loc>
     
-    <lastmod>2022-04-15</lastmod>
+    <lastmod>2022-04-22</lastmod>
     
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -508,6 +508,34 @@
     <priority>0.2</priority>
   </url>
   
+  <url>
+    <loc>https://sharpa.cn/tags/SSRF/</loc>
+    <lastmod>2022-04-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://sharpa.cn/tags/redis%E6%9C%AA%E6%8E%88%E6%9D%83/</loc>
+    <lastmod>2022-04-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://sharpa.cn/tags/mysql%E6%9C%AA%E6%8E%88%E6%9D%83/</loc>
+    <lastmod>2022-04-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://sharpa.cn/tags/%E5%B8%B8%E8%A7%81web%E6%BC%8F%E6%B4%9E/</loc>
+    <lastmod>2022-04-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
 
   
   <url>
@@ -673,6 +701,13 @@
   
   <url>
     <loc>https://sharpa.cn/categories/CSAPP/bomblab/</loc>
+    <lastmod>2022-04-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://sharpa.cn/categories/%E9%9D%B6%E5%9C%BA/SSRF/</loc>
     <lastmod>2022-04-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
