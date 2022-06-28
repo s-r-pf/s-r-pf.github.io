@@ -726,17 +726,6 @@
     
     
     <entry>
-      <title>music</title>
-      <link href="/music/index.html"/>
-      <url>/music/index.html</url>
-      
-        <content type="html"><![CDATA[]]></content>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>标签</title>
       <link href="/tags/index.html"/>
       <url>/tags/index.html</url>
@@ -753,6 +742,17 @@
       <url>/tools/index.html</url>
       
         <content type="html"><![CDATA[<div class="timeline pink"><div class='timeline-item headline'><div class='timeline-item-title'><div class='item-circle'><p>代理工具</p></div></div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>reGeorg</p></div></div><div class='timeline-item-content'><p><a href="https://github.com/sensepost/reGeorg">reGeorg</a>：通过Web服务器创建SOCKS代理，内网不能外连时使用。<br>这是测试页面</p></div></div></div>]]></content>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>music</title>
+      <link href="/music/index.html"/>
+      <url>/music/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
       
     </entry>
     
