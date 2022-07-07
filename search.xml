@@ -4,6 +4,37 @@
   
     
     <entry>
+      <title>HTB-RouterSpace</title>
+      <link href="/2022/07/07/HTB-RouterSpace/"/>
+      <url>/2022/07/07/HTB-RouterSpace/</url>
+      
+        <content type="html"><![CDATA[<h1 id="信息搜集"><a href="#信息搜集" class="headerlink" title="信息搜集"></a>信息搜集</h1><p><code>nmap -A -sC -sV -T4 10.10.11.148</code></p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line">Starting Nmap 7.92 ( https://nmap.org ) at 2022-07-07 10:47 CST</span><br><span class="line">Nmap scan report for 10.10.11.148</span><br><span class="line">Host is up (0.26s latency).</span><br><span class="line">Not shown: 998 filtered tcp ports (no-response)</span><br><span class="line">PORT   STATE SERVICE VERSION</span><br><span class="line">22/tcp open  ssh     (protocol 2.0)</span><br><span class="line">| ssh-hostkey:</span><br><span class="line">|   3072 f4:e4:c8:0a:a6:af:66:93:af:69:5a:a9:bc:75:f9:0c (RSA)</span><br><span class="line">|   256 7f:05:cd:8c:42:7b:a9:4a:b2:e6:35:2c:c4:59:78:02 (ECDSA)</span><br><span class="line">|_  256 2f:d7:a8:8b:be:2d:10:b0:c9:b4:29:52:a8:94:24:78 (ED25519)</span><br><span class="line">| fingerprint-strings:</span><br><span class="line">|   NULL:</span><br><span class="line">|_    SSH-2.0-RouterSpace Packet Filtering V1</span><br><span class="line">80/tcp open  http</span><br><span class="line">|_http-title: RouterSpace</span><br><span class="line">| fingerprint-strings:</span><br><span class="line">|   FourOhFourRequest:</span><br><span class="line">|     HTTP/1.1 200 OK</span><br><span class="line">|     X-Powered-By: RouterSpace</span><br><span class="line">|     X-Cdn: RouterSpace-92554</span><br><span class="line">|     Content-Type: text/html; charset=utf-8</span><br><span class="line">|     Content-Length: 73</span><br><span class="line">|     ETag: W/&quot;49-qxcoYWu8Kk9rHkEvzLbIy54Tbok&quot;</span><br><span class="line">|     Date: Thu, 07 Jul 2022 02:47:27 GMT</span><br><span class="line">|     Connection: close</span><br><span class="line">|     Suspicious activity detected !!! &#123;RequestID: DZl zQ B g7 kb 5JymM &#125;</span><br><span class="line">|   GetRequest:</span><br><span class="line">|     HTTP/1.1 200 OK</span><br><span class="line">|     X-Powered-By: RouterSpace</span><br><span class="line">|     X-Cdn: RouterSpace-66079</span><br><span class="line">|     Accept-Ranges: bytes</span><br><span class="line">|     Cache-Control: public, max-age=0</span><br><span class="line">|     Last-Modified: Mon, 22 Nov 2021 11:33:57 GMT</span><br><span class="line">|     ETag: W/&quot;652c-17d476c9285&quot;</span><br><span class="line">|     Content-Type: text/html; charset=UTF-8</span><br><span class="line">|     Content-Length: 25900</span><br><span class="line">|     Date: Thu, 07 Jul 2022 02:47:25 GMT</span><br><span class="line">|     Connection: close</span><br><span class="line">|     &lt;!doctype html&gt;</span><br><span class="line">|     &lt;html class=&quot;no-js&quot; lang=&quot;zxx&quot;&gt;</span><br><span class="line">|     &lt;head&gt;</span><br><span class="line">|     &lt;meta charset=&quot;utf-8&quot;&gt;</span><br><span class="line">|     &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;</span><br><span class="line">|     &lt;title&gt;RouterSpace&lt;/title&gt;</span><br><span class="line">|     &lt;meta name=&quot;description&quot; content=&quot;&quot;&gt;</span><br><span class="line">|     &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;</span><br><span class="line">|     &lt;link rel=&quot;stylesheet&quot; href=&quot;css/bootstrap.min.css&quot;&gt;</span><br><span class="line">|     &lt;link rel=&quot;stylesheet&quot; href=&quot;css/owl.carousel.min.css&quot;&gt;</span><br><span class="line">|     &lt;link rel=&quot;stylesheet&quot; href=&quot;css/magnific-popup.css&quot;&gt;</span><br><span class="line">|     &lt;link rel=&quot;stylesheet&quot; href=&quot;css/font-awesome.min.css&quot;&gt;</span><br><span class="line">|     &lt;link rel=&quot;stylesheet&quot; href=&quot;css/themify-icons.css&quot;&gt;</span><br><span class="line">|   HTTPOptions:</span><br><span class="line">|     HTTP/1.1 200 OK</span><br><span class="line">|     X-Powered-By: RouterSpace</span><br><span class="line">|     X-Cdn: RouterSpace-73278</span><br><span class="line">|     Allow: GET,HEAD,POST</span><br><span class="line">|     Content-Type: text/html; charset=utf-8</span><br><span class="line">|     Content-Length: 13</span><br><span class="line">|     ETag: W/&quot;d-bMedpZYGrVt1nR4x+qdNZ2GqyRo&quot;</span><br><span class="line">|     Date: Thu, 07 Jul 2022 02:47:26 GMT</span><br><span class="line">|     Connection: close</span><br><span class="line">|     GET,HEAD,POST</span><br><span class="line">|   RTSPRequest, X11Probe:</span><br><span class="line">|     HTTP/1.1 400 Bad Request</span><br><span class="line">|_    Connection: close</span><br><span class="line">|_http-trane-info: Problem with XML parsing of /evox/about</span><br><span class="line">2 services unrecognized despite returning data. If you know the service/version, please submit the following fingerprints at https://nmap.org/cgi-bin/submit.cgi?new-service :</span><br></pre></td></tr></table></figure><p>开启了SSH服务和80Web服务，网页端可以下载一个apk安装文件，先测试一下安卓客户端。</p><h1 id="安卓程序测试"><a href="#安卓程序测试" class="headerlink" title="安卓程序测试"></a>安卓程序测试</h1><p>为了在Linux主机上运行安卓程序，需要一个模拟软件，这里使用<a href="https://docs.anbox.io/userguide/install.html">Anbox</a>。<br>关于Anbox的介绍和使用方法可以参考这个<a href="https://zhuanlan.zhihu.com/p/65463076">链接</a>，英文完整教程<a href="https://www.rootcat.de/blog/anbox_setup_may21/">安装+运行+代理设置</a>。</p><p><code>snap run anbox launch --package=org.anbox.appmgr --component=org.anbox.appmgr.AppViewActivity</code> 命令行运行anbox模拟器<br><code>adb devices</code> 启动adb服务并查看anbox是否成功开启<br><code>adb install RouterSpace.apk</code> 安装下载的apk软件</p><p>安装成功后会出现该软件的图标：<br><img src="https://s2.loli.net/2022/07/07/2N4YLRXicwC3peb.png" alt="image.png"></p><h2 id="Anbox代理设置"><a href="#Anbox代理设置" class="headerlink" title="Anbox代理设置"></a>Anbox代理设置</h2><p><code>ifconfig anbox0</code> 查看Anbox默认的网桥<br><code>adb shell settings put global http_proxy 192.168.250.1:6666</code> 通过adb设置Anbox的全局代理IP和端口<br><code>adb shell settings put global http_proxy :0</code> 取消代理</p><p>设置好代理后使burp suite监听该地址即可，按上面配置，地址应该设置为<code>192.168.250.1:6666</code>，如下图：<br><img src="https://s2.loli.net/2022/07/07/7qLUBMHyrlGDPvE.png" alt="image.png"></p><p>抓到的数据包：<br><img src="https://s2.loli.net/2022/07/07/RmZj7siMGVF6hU4.png" alt="image.png"><br>发现是向<code>routerspace.htb</code>域名发送数据，首先将该域名添加到<code>/etc/hosts</code>文件里面。</p><p><img src="https://s2.loli.net/2022/07/07/QrNWj6JqdmbLpHS.png" alt="image.png"><br>发现存在命令执行漏洞，接下来获取shell。</p><h1 id="普通权限"><a href="#普通权限" class="headerlink" title="普通权限"></a>普通权限</h1><p>发现存在命令执行后，我们最终的目的是获取到一个ssh连接。<br><img src="https://s2.loli.net/2022/07/07/YaV7XAufFMQnHDB.png" alt="image.png"><br>通过echo和重定向命令测试是否可以成功存储公钥。<br><img src="https://s2.loli.net/2022/07/07/vVtL8nNkOsa3rzH.png" alt="image.png"><br>发现可以成功存储，接下来将公钥写入<code>.ssh</code>目录下面。<br><img src="https://s2.loli.net/2022/07/07/9qJroVm3SQwMd5s.png" alt="image.png"><br><code>ssh paul@10.10.11.148 -i ./id_rsa</code> 使用私钥登录服务器即可</p><h1 id="root权限"><a href="#root权限" class="headerlink" title="root权限"></a>root权限</h1><p><code>find / -perm /4000 2&gt;/dev/null</code> 查看具有SUID权限的文件</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/su</span><br><span class="line">/usr/bin/passwd</span><br><span class="line">/usr/bin/at</span><br><span class="line">/usr/bin/chsh</span><br><span class="line">/usr/bin/chfn</span><br><span class="line">/usr/bin/mount</span><br><span class="line">/usr/bin/newgrp</span><br><span class="line">/usr/bin/umount</span><br><span class="line">/usr/bin/sudo</span><br><span class="line">/usr/bin/gpasswd</span><br><span class="line">/usr/bin/fusermount</span><br><span class="line">/usr/lib/dbus-1.0/dbus-daemon-launch-helper</span><br><span class="line">/usr/lib/eject/dmcrypt-get-device</span><br><span class="line">/usr/lib/policykit-1/polkit-agent-helper-1</span><br><span class="line">/usr/lib/openssh/ssh-keysign</span><br></pre></td></tr></table></figure><p>没有发现什么特别的文件，接下来使用提权脚本跑一下。</p><p>使用<code>curl</code>和<code>wget</code>均无法下载文件，但可以使用scp通过ssh传输文件：<code>scp -i ./id_rsa ./local_file paul@10.10.11.148:/remote_dir</code><br>使用<a href="https://github.com/mzet-/linux-exploit-suggester">LES</a>脚本来发现提权点，用同样的方法上传该脚本文件。</p><p>发现CVE-2021-3156，接下来使用脚本利用。<br><code>tar -cvf exp.tar CVE-2021-3156</code>打包整个文件夹后发送到靶机上。<br><img src="https://s2.loli.net/2022/07/07/6sLoHJXWgKTSjmb.png" alt="image.png"><br>成功的获取到了root权限。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 靶场 </category>
+          
+          <category> Hackthebox </category>
+          
+          <category> easy </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> HTB </tag>
+            
+            <tag> 安卓抓包 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>HTB-Timelapse</title>
       <link href="/2022/06/25/HTB-Timelapse/"/>
       <url>/2022/06/25/HTB-Timelapse/</url>
@@ -697,9 +728,9 @@
     
     
     <entry>
-      <title>movies</title>
-      <link href="/movies/index.html"/>
-      <url>/movies/index.html</url>
+      <title>友情链接</title>
+      <link href="/link/index.html"/>
+      <url>/link/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
@@ -708,9 +739,9 @@
     
     
     <entry>
-      <title>友情链接</title>
-      <link href="/link/index.html"/>
-      <url>/link/index.html</url>
+      <title>movies</title>
+      <link href="/movies/index.html"/>
+      <url>/movies/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
@@ -730,22 +761,22 @@
     
     
     <entry>
-      <title>tools</title>
-      <link href="/tools/index.html"/>
-      <url>/tools/index.html</url>
+      <title>music</title>
+      <link href="/music/index.html"/>
+      <url>/music/index.html</url>
       
-        <content type="html"><![CDATA[<div class="timeline pink"><div class='timeline-item headline'><div class='timeline-item-title'><div class='item-circle'><p>代理工具</p></div></div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>reGeorg</p></div></div><div class='timeline-item-content'><p><a href="https://github.com/sensepost/reGeorg">reGeorg</a>：通过Web服务器创建SOCKS代理，内网不能外连时使用。</p></div></div></div>]]></content>
+        <content type="html"><![CDATA[]]></content>
       
     </entry>
     
     
     
     <entry>
-      <title>music</title>
-      <link href="/music/index.html"/>
-      <url>/music/index.html</url>
+      <title>tools</title>
+      <link href="/tools/index.html"/>
+      <url>/tools/index.html</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<div class="timeline pink"><div class='timeline-item headline'><div class='timeline-item-title'><div class='item-circle'><p>代理工具</p></div></div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>reGeorg</p></div></div><div class='timeline-item-content'><p><a href="https://github.com/sensepost/reGeorg">reGeorg</a>：通过Web服务器创建SOCKS代理，内网不能外连时使用。</p></div></div></div><div class="timeline blue"><div class='timeline-item headline'><div class='timeline-item-title'><div class='item-circle'><p>杂项</p></div></div></div><div class='timeline-item'><div class='timeline-item-title'><div class='item-circle'><p>reGeorg</p></div></div><div class='timeline-item-content'><p><a href="https://docs.anbox.io/userguide/install.html">Anbox</a>：Linux上的安卓模拟器。</p></div></div></div>]]></content>
       
     </entry>
     
